@@ -3,6 +3,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser'); 
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/authRoutes'); 
+const wishlistRoutes = require('./routes/wishlistRoutes');
 
 dotenv.config();
 
@@ -32,6 +33,9 @@ app.use('/auth', authRoutes);
 app.get('/', (req, res) => {
     res.render('index', { user: req.session.user });
 });
+
+// Маршрути для списків
+app.use('/wishlists', wishlistRoutes);
 
 // Запуск сервера
 app.listen(PORT, () => {
