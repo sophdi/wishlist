@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>головна</title>
+</head>
+<body>
+    <h1>wishlist</h1>
+    <% if (user) { %>
+        <p>Привіт, <%= user.username %>!</p>
+        <a href="/logout">Вийти</a>
+    <% } else { %>
+        <a href="/login">Увійти</a> | <a href="/register">Реєстрація</a>
+    <% } %>
+</body>
+</html>
