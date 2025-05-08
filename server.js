@@ -1,14 +1,15 @@
 const express = require('express');
 const session = require('express-session');
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser'); 
 const dotenv = require('dotenv');
+const authRoutes = require('./routes/authRoutes'); 
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware для обробки даних форм
+// Middleware 
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Налаштування сесій
@@ -18,10 +19,16 @@ app.use(session({
     saveUninitialized: true,
 }));
 
-// Налаштування EJS
+// Налаштування EJS як шаблонізатора
 app.set('view engine', 'ejs');
 
-// Головна
+// Налаштування статичних файлів
+app.use(express.static('public'));
+
+// Використання маршрутів для авторизації
+app.use('/auth', authRoutes);
+
+// Головна сторінка (без middleware для захисту)
 app.get('/', (req, res) => {
     res.render('index', { user: req.session.user });
 });
@@ -29,15 +36,4 @@ app.get('/', (req, res) => {
 // Запуск сервера
 app.listen(PORT, () => {
     console.log(`Сервер запущено на http://localhost:${PORT}`);
-});
-
-const db = require('./config/db');
-
-// Тестовий запит до бази даних
-db.query('SELECT 1 + 1 AS solution', (err, results) => {
-    if (err) {
-        console.error('Помилка в SQL-запиті:', err);
-        return;
-    }
-    console.log('Результат тестового запиту:', results[0].solution);
 });

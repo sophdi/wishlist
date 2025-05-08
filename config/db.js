@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+// конфіг для бази даних
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -12,11 +13,10 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
     if (err) {
-        console.error('Помилка підключення до бази даних:', err);
+        console.error('Помилка підключення до бази:', err);
         return;
     }
-    console.log('Підключено до бази даних');
+    console.log('База даних підключена');
 });
-
 
 module.exports = db;

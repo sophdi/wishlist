@@ -9,9 +9,9 @@
     <h1>wishlist</h1>
     <% if (user) { %>
         <p>Привіт, <%= user.username %>!</p>
-        <a href="/logout">Вийти</a>
-    <% } else { %>
-        <a href="/login">Увійти</a> | <a href="/register">Реєстрація</a>
-    <% } %>
+        <a href="/auth/logout">Вийти</a>
+        <% } else { %>
+            <a href="/auth/login">Увійти</a> | <a href="/auth/register">Реєстрація</a>
+        <% } %>
 </body>
 </html>
