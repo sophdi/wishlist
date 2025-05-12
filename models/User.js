@@ -2,7 +2,6 @@
 
 const db = require('../config/db');
 
-// Додає нового користувача в базу
 const createUser = (username, email, hashedPassword) => {
   return new Promise((resolve, reject) => {
     const sql =
@@ -14,13 +13,12 @@ const createUser = (username, email, hashedPassword) => {
   });
 };
 
-// Шукає користувача за email
 const findUserByEmail = (email) => {
   return new Promise((resolve, reject) => {
     const sql = 'SELECT * FROM users WHERE email = ?';
     db.query(sql, [email], (err, result) => {
-      if (err) reject(err); 
-      resolve(result[0]); 
+      if (err) reject(err);
+      resolve(result[0]);
     });
   });
 };

@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "nodemon index.js",
+    "dev": "nodemon server.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
@@ -18,11 +18,13 @@
     "css"
   ],
   "author": "Sofii",
-  "license": "ISC",
+  "license": "MIT",
   "description": "Project for creating and managing wish lists",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",
+    "connect-flash": "^0.1.1",
+    "csurf": "^1.10.0",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
@@ -33,7 +35,6 @@
   "devDependencies": {
     "eslint": "^9.26.0",
     "nodemon": "^3.1.10",
-    "prettier": "^3.5.3",
-    "tailwindcss": "^4.1.6"
+    "prettier": "^3.5.3"
   }
 }

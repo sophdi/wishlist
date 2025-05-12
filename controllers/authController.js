@@ -18,16 +18,18 @@ const registerUser = async (req, res) => {
   try {
     const existingUser = await User.findUserByEmail(email);
     if (existingUser) {
-      return res.status(400).send('Email already in use');
+      req.flash('error', 'Email already in use');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await User.createUser(username, email, hashedPassword);
 
+    // Збереження користувача в сесії
     req.session.user = { id: newUser.insertId, username };
     res.redirect('/');
   } catch (err) {
     console.error('Помилка реєстрації:', err);
+    req.flash('error', 'Registration failed');
     res.redirect('/auth/register');
   }
 };
@@ -36,7 +38,8 @@ const registerUser = async (req, res) => {
  * Відображає форму входу
  */
 const showLoginForm = (req, res) => {
-  res.render('auth/login');
+  const errorMessage = req.flash('error'); // Отримуємо flash-повідомлення
+  res.render('auth/login', { errorMessage }); // Передаємо його у шаблон
 };
 
 /**
@@ -48,11 +51,13 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findUserByEmail(email);
     if (!user) {
+      req.flash('error', 'Користувача не знайдено'); // Додаємо повідомлення
       return res.redirect('/auth/login');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      req.flash('error', 'Неправильний пароль'); // Додаємо повідомлення
       return res.redirect('/auth/login');
     }
 
@@ -60,6 +65,7 @@ const loginUser = async (req, res) => {
     res.redirect('/');
   } catch (err) {
     console.error('Помилка входу:', err);
+    req.flash('error', 'Сталася помилка. Спробуйте ще раз.');
     res.redirect('/auth/login');
   }
 };
@@ -68,8 +74,11 @@ const loginUser = async (req, res) => {
  * Завершує сесію користувача
  */
 const logoutUser = (req, res) => {
-  req.session.destroy(() => {
-    res.redirect('/');
+  req.session.destroy((err) => {
+    if (err) {
+      return res.redirect('/');
+    }
+    res.redirect('/auth/login');
   });
 };
 

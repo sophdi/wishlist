@@ -1,0 +1,161 @@
+<!-- views/wishlists/wishlist.ejs -->
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <%- include('../partials/head') %>
+</head>
+
+<body class="bg-white min-h-screen flex flex-col">
+  <%- include('../partials/navbar') %>
+  <main class="container mx-auto px-4 py-12 pt-24 flex-grow">
+    <div class="max-w-7xl mx-auto">
+      <!-- Секція заголовку та дій -->
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-4xl font-bold text-brand-text mb-2">
+              Мої вішлісти
+            </h1>
+            <p class="text-gray-600">Керуй своїми мріями</p>
+          </div>
+          <button onclick="openCreateModal()"
+            class="bg-brand-text text-white px-6 py-3 rounded-lg flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>Створити вішліст</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Контент вішлістів -->
+      <section>
+        <% if (wishlists.length > 0) { %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <% wishlists.forEach(wishlist => { %>
+          <a href="/wishlists/<%= wishlist.id %>" class="block">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 transition-all duration-300">
+              <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-semibold text-brand-text truncate pr-4">
+                  <%= wishlist.title %>
+                </h3>
+                <div class="w-10 h-10 bg-brand-bg rounded-xl flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-gift text-brand-primary"></i>
+                </div>
+              </div>
+
+              <div class="mb-4 min-h-[3rem]">
+                <% if (wishlist.description) { %>
+                <p class="text-gray-600 line-clamp-2">
+                  <%= wishlist.description %>
+                </p>
+                <% } else { %>
+                <p class="text-gray-400 italic">Без опису</p>
+                <% } %>
+              </div>
+
+              <div class="text-sm text-gray-500 space-y-2">
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-list"></i>
+                  <span>
+                    <%= wishlist.items_count || 0 %>
+                    бажань
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fas fa-calendar"></i>
+                  <span>
+                    Створено
+                    <%= new Date(wishlist.created_at).toLocaleDateString('uk-UA') %>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </a>
+          <% }) %>
+        </div>
+        <% } else { %>
+        <!-- Порожній стан -->
+        <div class="text-center bg-gray-50 rounded-2xl p-12">
+          <div class="w-24 h-24 bg-brand-bg rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-gift text-4xl text-brand-primary"></i>
+          </div>
+          <h2 class="text-2xl font-semibold text-brand-text mb-3">
+            Ще немає вішлістів
+          </h2>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            Розпочни свою подорож мрій. Створи перший вішліст прямо зараз!
+          </p>
+          <button onclick="openCreateModal()" class="bg-brand-text text-white px-6 py-3 rounded-lg">
+            Створити вішліст
+          </button>
+        </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+
+  <!-- Модальне вікно створення -->
+  <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-brand-text">Створити вішліст</h2>
+        <button onclick="closeCreateModal()" class="text-gray-500 hover:text-brand-text">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <form action="/wishlists/create" method="POST" class="p-6 space-y-6">
+        <div>
+          <label for="title" class="block text-gray-700 font-medium mb-2">
+            Назва
+          </label>
+          <input type="text" id="title" name="title"
+            class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            placeholder="Назва вішліста" required />
+        </div>
+
+        <div>
+          <label for="description" class="block text-gray-700 font-medium mb-2">
+            Опис (необов'язково)
+          </label>
+          <textarea id="description" name="description"
+            class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+            placeholder="Додай короткий опис..." rows="3"></textarea>
+        </div>
+
+        <div class="flex space-x-4">
+          <button type="button" onclick="closeCreateModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
+            Скасувати
+          </button>
+          <button type="submit" class="flex-1 bg-brand-text text-white py-3 rounded-lg">
+            Створити
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('../partials/footer') %>
+
+  <script>
+    function openCreateModal() {
+      document.getElementById('createModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Закрити модалку при кліку поза нею
+    document
+      .getElementById('createModal')
+      .addEventListener('click', function (e) {
+        if (e.target === this) {
+          closeCreateModal();
+        }
+      });
+  </script>
+</body>
+
+</html>
