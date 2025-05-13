@@ -1,0 +1,8 @@
+ @import "tailwindcss";
+ 
+/* Додаткові кастомні стилі */
+@theme {
+  --color-brand-text: #000000;
+  --color-brand-primary: #4F46E5;
+  --color-brand-bg: #F5F5F5;
+}

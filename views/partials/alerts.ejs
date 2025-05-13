@@ -1,0 +1,23 @@
+<!-- views/partials/alerts.ejs 
+<% if (success && success.length > 0) { %>
+  <div id="success-alert" class="fixed top-[66px] left-1/2 -translate-x-1/2 w-80 bg-green-500 text-white px-4 py-3 rounded-lg shadow-lg -translate-y-full opacity-0 transition-all duration-500 ease-in-out z-50">
+    <%= success %>
+  </div>
+<% } %>
+<% if (error && error.length > 0) { %>
+  <div id="error-alert" class="fixed top-[66px] left-1/2 -translate-x-1/2 w-80 bg-red-500 text-white px-4 py-3 rounded-lg shadow-lg -translate-y-full opacity-0 transition-all duration-500 ease-in-out z-50">
+    <%= error %>
+  </div>
+<% } %>
+ <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const alert = document.getElementById('alert');
+      if (alert) {
+        setTimeout(() => {
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 300);
+        }, 3000);
+      }
+    });
+  </script>
+  -->

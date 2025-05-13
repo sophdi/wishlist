@@ -1,0 +1,197 @@
+<!-- views/wishlists/wishlist-detail.ejs -->
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+  <%- include('../partials/navbar') %>
+  <main class="container mx-auto px-4 py-12 pt-24 flex-grow">
+    <%- include('../partials/alerts') %>
+    <div class="max-w-7xl mx-auto">
+      <section class="mb-12">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2"><%= wishlist.title %></h1>
+            <p class="text-gray-600"><%= wishlist.description || 'Без опису' %></p>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="openEditModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg">Редагувати</button>
+            <a href="/wishlists/delete/<%= wishlist.id %>" class="bg-red-500 text-white px-6 py-3 rounded-lg">Видалити</a>
+          </div>
+        </div>
+      </section>
+      <section>
+        <div class="mb-8">
+          <button onclick="openAddWishModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>Додати бажання</span>
+          </button>
+        </div>
+        <% if (wishes.length > 0) { %>
+          <div class="space-y-4">
+            <% wishes.forEach(wish => { %>
+              <div class="bg-white border border-gray-200 rounded-2xl p-6">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 class="text-xl font-semibold text-gray-900"><%= wish.title %></h3>
+                    <p class="text-gray-600"><%= wish.description || 'Без опису' %></p>
+                  </div>
+                  <div class="flex gap-2">
+                    <button onclick="openEditWishModal('<%= wish.id %>', '<%= wish.title %>', '<%= wish.description || '' %>')" class="text-gray-500 hover:text-gray-900">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <a href="/wishlists/<%= wishlist.id %>/wishes/delete/<%= wish.id %>" class="text-red-500 hover:text-red-700">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <div class="text-center bg-gray-50 rounded-2xl p-12">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-gift text-4xl text-gray-900"></i>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-900 mb-3">Ще немає бажань</h2>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">Додай своє перше бажання!</p>
+            <button onclick="openAddWishModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg">Додати бажання</button>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </main>
+  <div id="editModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-900">Редагувати вішліст</h2>
+        <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-900">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <form action="/wishlists/<%= wishlist.id %>/edit" method="POST" class="p-6 space-y-6">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div>
+          <label for="title" class="block text-gray-700 font-medium mb-2">Назва</label>
+          <input type="text" id="title" name="title" value="<%= wishlist.title %>" class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:border-transparent" required />
+        </div>
+        <div>
+          <label for="description" class="block text-gray-700 font-medium mb-2">Опис (необов’язково)</label>
+          <textarea id="description" name="description" class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none focus:ring-2 focus:border-transparent" rows="3"><%= wishlist.description || '' %></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" onclick="closeEditModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">Скасувати</button>
+          <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">Зберегти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="addWishModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-900">Додати бажання</h2>
+        <button onclick="closeAddWishModal()" class="text-gray-500 hover:text-gray-900">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <form action="/wishlists/<%= wishlist.id %>/wishes/create" method="POST" class="p-6 space-y-6">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div>
+          <label for="title" class="block text-gray-700 font-medium mb-2">Назва</label>
+          <input type="text" id="title" name="title" class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:border-transparent" placeholder="Назва бажання" required />
+        </div>
+        <div>
+          <label for="description" class="block text-gray-700 font-medium mb-2">Опис (необов’язково)</label>
+          <textarea id="description" name="description" class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none focus:ring-2 focus:border-transparent" placeholder="Додай короткий опис..." rows="3"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" onclick="closeAddWishModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">Скасувати</button>
+          <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">Додати</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="editWishModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+    <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
+      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-2xl font-bold text-gray-900">Редагувати бажання</h2>
+        <button onclick="closeEditWishModal()" class="text-gray-500 hover:text-gray-900">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <form action="/wishlists/<%= wishlist.id %>/wishes/edit/0" method="POST" class="p-6 space-y-6" id="editWishForm">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div>
+          <label for="wishTitle" class="block text-gray-700 font-medium mb-2">Назва</label>
+          <input type="text" id="wishTitle" name="title" class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:border-transparent" required />
+        </div>
+        <div>
+          <label for="wishDescription" class="block text-gray-700 font-medium mb-2">Опис (необов’язково)</label>
+          <textarea id="wishDescription" name="description" class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none focus:ring-2 focus:border-transparent" rows="3"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="button" onclick="closeEditWishModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">Скасувати</button>
+          <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">Зберегти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <%- include('../partials/footer') %>
+  <script>
+    function openEditModal() {
+      document.getElementById('editModal').classList.remove('hidden');
+      document.getElementById('editModal').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      document.getElementById('editModal').classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+    function openAddWishModal() {
+      document.getElementById('addWishModal').classList.remove('hidden');
+      document.getElementById('addWishModal').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAddWishModal() {
+      document.getElementById('addWishModal').classList.add('hidden');
+      document.getElementById('addWishModal').classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+    function openEditWishModal(wishId, title, description) {
+      const form = document.getElementById('editWishForm');
+      form.action = `/wishlists/<%= wishlist.id %>/wishes/edit/${wishId}`;
+      document.getElementById('wishTitle').value = title;
+      document.getElementById('wishDescription').value = description;
+      document.getElementById('editWishModal').classList.remove('hidden');
+      document.getElementById('editWishModal').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeEditWishModal() {
+      document.getElementById('editWishModal').classList.add('hidden');
+      document.getElementById('editWishModal').classList.remove('flex');
+      document.body.style.overflow = 'auto';
+    }
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditModal();
+    });
+    document.getElementById('addWishModal').addEventListener('click', function(e) {
+      if (e.target === this) closeAddWishModal();
+    });
+    document.getElementById('editWishModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditWishModal();
+    });
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeEditModal();
+        closeAddWishModal();
+        closeEditWishModal();
+      }
+    });
+  </script>
+</body>
+</html>

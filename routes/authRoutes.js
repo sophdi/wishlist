@@ -1,22 +1,13 @@
 // routes/authRoutes.js
 const express = require('express');
-const authController = require('../controllers/authController');
+const { showRegisterForm, registerUser, showLoginForm, loginUser, logoutUser } = require('../controllers/authController');
 
 const router = express.Router();
 
-// Форма реєстрації
-router.get('/register', authController.showRegisterForm);
-
-// Обробка реєстрації
-router.post('/register', authController.registerUser);
-
-// Форма входу
-router.get('/login', authController.showLoginForm);
-
-// Обробка входу
-router.post('/login', authController.loginUser);
-
-// Вихід із системи
-router.get('/logout', authController.logoutUser);
+router.get('/register', showRegisterForm);
+router.post('/register', registerUser);
+router.get('/login', showLoginForm);
+router.post('/login', loginUser);
+router.get('/logout', logoutUser);
 
 module.exports = router;

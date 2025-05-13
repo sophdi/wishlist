@@ -1,91 +1,97 @@
-//controllers/authController.js
 const bcrypt = require('bcryptjs');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 
-/**
- * Відображає форму реєстрації
- */
 const showRegisterForm = (req, res) => {
-  res.render('auth/register');
+  res.render('auth/register', { errors: [] });
 };
 
-/**
- * Реєструє нового користувача
- */
-const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
-
-  try {
-    const existingUser = await User.findUserByEmail(email);
-    if (existingUser) {
-      req.flash('error', 'Email already in use');
+const registerUser = [
+  body('username').isLength({ min: 2, max: 30 }).withMessage('Ім’я користувача має бути від 2 до 30 символів'),
+  body('email').isEmail().withMessage('Невірний формат email'),
+  body('password').isLength({ min: 6 }).withMessage('Пароль має бути щонайменше 6 символів'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.render('auth/register', { errors: errors.array() });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.createUser(username, email, hashedPassword);
+    const { username, email, password } = req.body;
 
-    // Збереження користувача в сесії
-    req.session.user = { id: newUser.insertId, username };
-    res.redirect('/');
-  } catch (err) {
-    console.error('Помилка реєстрації:', err);
-    req.flash('error', 'Registration failed');
-    res.redirect('/auth/register');
+    try {
+      const existingUser = await User.findUserByEmail(email);
+      if (existingUser) {
+        return res.render('auth/register', { errors: [{ msg: 'Користувач із таким email вже існує' }] });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await User.createUser(username, email, hashedPassword);
+
+      const user = await User.findUserByEmail(email);
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regeneration error:', err);
+          return res.render('auth/register', { errors: [{ msg: 'Не вдалося зареєструватися' }] });
+        }
+        req.session.user = { id: user.id, username: user.username };
+        console.log('Register: Session set:', req.session.user);
+        res.redirect('/dashboard');
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.render('auth/register', { errors: [{ msg: 'Не вдалося зареєструватися' }] });
+    }
   }
-};
+];
 
-/**
- * Відображає форму входу
- */
 const showLoginForm = (req, res) => {
-  const errorMessage = req.flash('error'); // Отримуємо flash-повідомлення
-  res.render('auth/login', { errorMessage }); // Передаємо його у шаблон
-};
-
-/**
- * Авторизує користувача
- */
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findUserByEmail(email);
-    if (!user) {
-      req.flash('error', 'Користувача не знайдено'); // Додаємо повідомлення
-      return res.redirect('/auth/login');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      req.flash('error', 'Неправильний пароль'); // Додаємо повідомлення
-      return res.redirect('/auth/login');
-    }
-
-    req.session.user = { id: user.id, username: user.username };
-    res.redirect('/');
-  } catch (err) {
-    console.error('Помилка входу:', err);
-    req.flash('error', 'Сталася помилка. Спробуйте ще раз.');
-    res.redirect('/auth/login');
+  if (req.session?.user) {
+    console.log('Login: User already authenticated, redirecting to /dashboard');
+    return res.redirect('/dashboard');
   }
+  res.render('auth/login', { errors: [] });
 };
 
-/**
- * Завершує сесію користувача
- */
+const loginUser = [
+  body('email').isEmail().withMessage('Невірний формат email'),
+  body('password').notEmpty().withMessage('Введіть пароль'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.render('auth/login', { errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findUserByEmail(email);
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.render('auth/login', { errors: [{ msg: 'Невірний email або пароль' }] });
+      }
+
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error('Session regeneration error:', err);
+          return res.render('auth/login', { errors: [{ msg: 'Не вдалося увійти' }] });
+        }
+        req.session.user = { id: user.id, username: user.username };
+        console.log('Login: Session set:', req.session.user);
+        res.redirect('/dashboard');
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.render('auth/login', { errors: [{ msg: 'Не вдалося увійти' }] });
+    }
+  }
+];
+
 const logoutUser = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.redirect('/');
+      console.error('Session destruction error:', err);
     }
-    res.redirect('/auth/login');
+    res.redirect('/');
   });
 };
 
-module.exports = {
-  showRegisterForm,
-  registerUser,
-  showLoginForm,
-  loginUser,
-  logoutUser,
-};
+module.exports = { showRegisterForm, registerUser, showLoginForm, loginUser, logoutUser };

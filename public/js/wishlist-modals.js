@@ -1,55 +1,62 @@
+//public/js/wishlist-modals.js
 // Функції для модальних вікон вішліста
+// Функція для відкриття модального вікна
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+// Функція для закриття модального вікна
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = 'auto';
+  }
+}
 
 // Редагування вішліста
 function openEditWishlistModal() {
-  document.getElementById('editWishlistModal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  openModal('editWishlistModal');
 }
 
 function closeEditWishlistModal() {
-  document.getElementById('editWishlistModal').classList.add('hidden');
-  document.body.style.overflow = 'auto';
+  closeModal('editWishlistModal');
 }
 
 // Видалення вішліста
 function openDeleteConfirmModal() {
   closeEditWishlistModal();
-  document
-    .getElementById('deleteWishlistConfirmModal')
-    .classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  openModal('deleteWishlistConfirmModal');
 }
 
 function closeDeleteConfirmModal() {
-  document.getElementById('deleteWishlistConfirmModal').classList.add('hidden');
-  document.body.style.overflow = 'auto';
+  closeModal('deleteWishlistConfirmModal');
 }
 
 // Створення бажання
 function openCreateWishModal() {
-  document.getElementById('createWishModal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  openModal('createWishModal');
 }
 
 function closeCreateWishModal() {
-  document.getElementById('createWishModal').classList.add('hidden');
-  document.body.style.overflow = 'auto';
+  closeModal('createWishModal');
 }
 
 // Видалення бажання
 function openDeleteWishModal(deleteUrl) {
-  const deleteModal = document.getElementById('deleteWishModal');
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
   confirmDeleteBtn.href = deleteUrl;
-  deleteModal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+  openModal('deleteWishModal');
 }
 
 function closeDeleteWishModal() {
-  const deleteModal = document.getElementById('deleteWishModal');
-  deleteModal.classList.add('hidden');
-  document.body.style.overflow = 'auto';
+  closeModal('deleteWishModal');
 }
 
 // Редагування бажання
@@ -66,7 +73,19 @@ function openEditWishModal(id, title, description, priority, targetDate, link) {
   });
 }
 
-// Закриття модальних вікон при кліці
+// Додаємо функцію для видалення бажання з підтвердженням
+function openConfirmDeleteWishModal(deleteUrl) {
+  const confirmDeleteBtn = document.getElementById('confirmDeleteWishBtn');
+  confirmDeleteBtn.href = deleteUrl;
+  openModal('confirmDeleteWishModal');
+}
+
+// Закриття модального вікна видалення бажання
+function closeConfirmDeleteWishModal() {
+  closeModal('confirmDeleteWishModal');
+}
+
+// Ініціалізація при завантаженні сторінки
 document.addEventListener('DOMContentLoaded', function () {
   // Масив усіх модальних вікон
   const modals = [
@@ -74,16 +93,20 @@ document.addEventListener('DOMContentLoaded', function () {
     'deleteWishlistConfirmModal',
     'createWishModal',
     'deleteWishModal',
+    'confirmDeleteWishModal'
   ];
 
+  // Налаштовуємо обробники для всіх модальних вікон
   modals.forEach((modalId) => {
     const modal = document.getElementById(modalId);
+    if (!modal) return; // Пропускаємо, якщо елемент не існує
 
-    // Закриття при кліці поза модальним вікном
+    // Закриття при кліці на затемнений фон
     modal.addEventListener('click', function (e) {
-      if (e.target === this) {
-        this.classList.add('hidden');
-        document.body.style.overflow = 'auto';
+      // Перевіряємо, що клік був саме на фоні або на самому модальному вікні,
+      // а не на його вмісті
+      if (e.target === this || e.target === this.querySelector('.absolute.inset-0')) {
+        closeModal(modalId);
       }
     });
   });
@@ -93,71 +116,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (event.key === 'Escape') {
       modals.forEach((modalId) => {
         const modal = document.getElementById(modalId);
-        if (!modal.classList.contains('hidden')) {
-          modal.classList.add('hidden');
-          document.body.style.overflow = 'auto';
+        if (modal && !modal.classList.contains('hidden')) {
+          closeModal(modalId);
         }
       });
     }
   });
-});
 
-// Додаємо функцію для видалення бажання з підтвердженням
-function openConfirmDeleteWishModal(deleteUrl) {
-  const confirmModal = document.getElementById('confirmDeleteWishModal');
-  const confirmDeleteBtn = document.getElementById('confirmDeleteWishBtn');
+  // Налаштовуємо кнопку скасування у модальному вікні підтвердження видалення
   const cancelDeleteBtn = document.getElementById('cancelDeleteWishBtn');
-
-  confirmDeleteBtn.href = deleteUrl;
-
-  confirmModal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-
-  cancelDeleteBtn.onclick = function () {
-    confirmModal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-  };
-}
-
-// Закриття модального вікна видалення бажання
-function closeConfirmDeleteWishModal() {
-  const confirmModal = document.getElementById('confirmDeleteWishModal');
-  confirmModal.classList.add('hidden');
-  document.body.style.overflow = 'auto';
-}
-
-// Розширена логіка закриття модальних вікон
-document.addEventListener('DOMContentLoaded', function () {
-  const modals = [
-    'editWishlistModal',
-    'deleteWishlistConfirmModal',
-    'createWishModal',
-    'confirmDeleteWishModal',
-  ];
-
-  modals.forEach((modalId) => {
-    const modal = document.getElementById(modalId);
-
-    modal.addEventListener('click', function (e) {
-      if (e.target === this) {
-        this.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-      }
-    });
-  });
-
-  // Закриття по клавіші Escape
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape') {
-      modals.forEach((modalId) => {
-        const modal = document.getElementById(modalId);
-        if (!modal.classList.contains('hidden')) {
-          modal.classList.add('hidden');
-          document.body.style.overflow = 'auto';
-        }
-      });
-    }
-  });
+  if (cancelDeleteBtn) {
+    cancelDeleteBtn.onclick = function () {
+      closeConfirmDeleteWishModal();
+    };
+  }
 
   // Перехоплення посилань видалення
   const deleteLinks = document.querySelectorAll('a[href*="/wishes/delete/"]');

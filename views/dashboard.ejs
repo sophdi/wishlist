@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <%- include('partials/head') %>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+  <%- include('partials/navbar') %>
+  <main class="container mx-auto px-4 py-12 pt-24 flex-grow">
+    <%- include('partials/alerts') %>
+    <div class="max-w-7xl mx-auto">
+      <section class="mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Вітаємо, <%= user.username %>!</h1>
+        <p class="text-gray-600">Ваш особистий простір для мрій та бажань.</p>
+      </section>
+      <section>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <a href="/wishlists" class="block">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 transition-all duration-300">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <i class="fas fa-gift text-gray-900 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-900">Мої вішлісти</h3>
+                  <p class="text-gray-600">Перегляньте та керуйте своїми списками бажань.</p>
+                </div>
+              </div>
+            </div>
+          </a>
+          <div class="block">
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 transition-all duration-300">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <i class="fas fa-user text-gray-900 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-900">Профіль</h3>
+                  <p class="text-gray-600">Керуйте своїм профілем (скоро буде).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,72 +1,66 @@
 const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
+const csurf = require('csurf');
 const path = require('path');
-const {
-  csrfProtection,
-  attachCsrfToken,
-} = require('./middleware/authMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const errorHandler = require('./middleware/errorHandler');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 
-// Налаштування шаблонізатора
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware для обробки запитів
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Підключення сесій
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000
+    },
+    name: 'sessionId'
   })
 );
-
 app.use(flash());
-
-// CSRF-захист
-app.use(csrfProtection);
-app.use(attachCsrfToken);
-
-// Логування сесій
+app.use(csurf());
 app.use((req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.log('Session:', req.session);
+  res.locals.csrfToken = req.csrfToken();
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.session?.user || null;
   next();
 });
 
-// Логування CSRF токенів
+// Apply requireAuth only to protected routes
 app.use((req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.log(
-    'CSRF Token:',
-    req.csrfToken ? req.csrfToken() : 'Не згенеровано'
-  );
-  next();
+  const publicRoutes = ['/', '/auth/login', '/auth/register'];
+  if (publicRoutes.includes(req.path)) {
+    return next();
+  }
+  if (req.session?.user) {
+    if (req.path === '/') {
+      return res.redirect('/dashboard');
+    }
+    return next();
+  }
+  return res.redirect('/auth/login');
 });
 
-// Маршрути
+app.get('/', (req, res) => {
+  res.render('index', { user: null });
+});
+app.get('/dashboard', requireAuth, (req, res) => {
+  res.render('dashboard', { user: req.session.user });
+});
 app.use('/auth', authRoutes);
 app.use('/wishlists', wishlistRoutes);
 
-// Головна сторінка
-app.get('/', (req, res) => {
-  res.render('index', { user: req.session?.user || null });
-});
-
-// Обробка помилок
-app.use((err, req, res) => {
-  // TODO: Replace with proper logging
-  process.stderr.write(`Error: ${err}\n`);
-  res.status(500).send('Внутрішня помилка сервера');
-});
+app.use(errorHandler);
 
 module.exports = app;

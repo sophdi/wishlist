@@ -5,9 +5,9 @@
   <%- include('partials/head') %>
 </head>
 
-<body class="bg-white min-h-screen flex flex-col min-h-screen">
-  <%- include('partials/navbar') %>
-  <main class="container mx-auto px-4 flex-grow">
+<body class="bg-white min-h-screen flex flex-col">
+  <%- include('partials/navbar-guest') %>
+  <main class="container mx-auto px-4 flex-grow pt-24">
     <!-- Hero Section - Full Screen -->
     <section class="min-h-screen flex items-center mb-24">
       <div class="text-center w-full">
@@ -18,7 +18,7 @@
           Простий інструмент для створення, організації та втілення
           найзаповітніших мрій
         </p>
-        <div class="flex justify-center space-x-4">
+        <div class="flex justify-center gap-4 flex-col sm:flex-row">
           <a href="/auth/register" class="bg-gray-900 text-white px-8 py-4 rounded-lg text-lg">
             Почати безкоштовно
           </a>

@@ -8,6 +8,7 @@ const { requireAuth } = require('../middleware/authMiddleware');
 
 // Списки бажань
 router.get('/', requireAuth, wishlistController.showWishlists);
+
 router.get('/:id', requireAuth, wishlistController.showWishlistWithWishes);
 router.post('/create', requireAuth, wishlistController.createWishlist);
 router.post('/:id/edit', requireAuth, wishlistController.updateWishlist);

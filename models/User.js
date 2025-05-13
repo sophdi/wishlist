@@ -1,29 +1,18 @@
 // models/User.js
+const pool = require('../config/db');
 
-const db = require('../config/db');
+class User {
+  static async createUser(username, email, password) {
+    await pool.execute(
+      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+      [username, email, password]
+    );
+  }
 
-const createUser = (username, email, hashedPassword) => {
-  return new Promise((resolve, reject) => {
-    const sql =
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';
-    db.query(sql, [username, email, hashedPassword], (err, result) => {
-      if (err) reject(err);
-      resolve(result);
-    });
-  });
-};
+  static async findUserByEmail(email) {
+    const [rows] = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
+    return rows[0];
+  }
+}
 
-const findUserByEmail = (email) => {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT * FROM users WHERE email = ?';
-    db.query(sql, [email], (err, result) => {
-      if (err) reject(err);
-      resolve(result[0]);
-    });
-  });
-};
-
-module.exports = {
-  createUser,
-  findUserByEmail,
-};
+module.exports = User;

@@ -1,13 +1,14 @@
 <!-- partials/wishlist-modals.ejs -->
 <!-- Модальне вікно редагування списку бажань -->
 <div id="editWishlistModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md">
+  class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
     <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-brand-text">
+      <h2 class="text-2xl font-bold text-gray-900">
         Редагувати список бажань
       </h2>
-      <button onclick="closeEditWishlistModal()" class="text-gray-500 hover:text-brand-text">
+      <button onclick="closeEditWishlistModal()" class="text-gray-500 hover:text-gray-900">
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
@@ -27,15 +28,14 @@
         </label>
         <textarea id="description" name="description"
           class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none" placeholder="Додай короткий опис..."
-          rows="3">
-<%= wishlist.description || '' %></textarea>
+          rows="3"><%= wishlist.description || '' %></textarea>
       </div>
 
-      <div class="flex space-x-4">
+      <div class="flex gap-4">
         <button type="button" onclick="openDeleteConfirmModal()" class="flex-1 bg-red-50 text-red-600 py-3 rounded-lg">
           Видалити список
         </button>
-        <button type="submit" class="flex-1 bg-brand-text text-white py-3 rounded-lg">
+        <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">
           Зберегти
         </button>
       </div>
@@ -45,19 +45,20 @@
 
 <!-- Модальне вікно підтвердження видалення списку -->
 <div id="deleteWishlistConfirmModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md text-center p-8">
+  class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div class="bg-white rounded-2xl w-full max-w-md text-center p-8 relative z-10">
     <div class="mb-4">
       <i class="fas fa-trash-alt text-2xl text-red-500"></i>
     </div>
-    <h3 class="text-xl font-semibold text-brand-text mb-3">
+    <h3 class="text-xl font-semibold text-gray-900 mb-3">
       Видалити список бажань?
     </h3>
     <p class="text-gray-600 mb-6">
       Усі бажання в цьому списку будуть видалені назавжди
     </p>
 
-    <div class="flex space-x-4">
+    <div class="flex gap-4">
       <button onclick="closeDeleteConfirmModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
         Скасувати
       </button>
@@ -69,11 +70,12 @@
 </div>
 
 <!-- Модальне вікно створення бажання -->
-<div id="createWishModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md">
+<div id="createWishModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
     <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-brand-text">Додати бажання</h2>
-      <button onclick="closeCreateWishModal()" class="text-gray-500 hover:text-brand-text">
+      <h2 class="text-2xl font-bold text-gray-900">Додати бажання</h2>
+      <button onclick="closeCreateWishModal()" class="text-gray-500 hover:text-gray-900">
         <i class="fas fa-times text-xl"></i>
       </button>
     </div>
@@ -118,11 +120,11 @@
         </div>
       </div>
 
-      <div class="flex space-x-4">
+      <div class="flex gap-4">
         <button type="button" onclick="closeCreateWishModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
           Скасувати
         </button>
-        <button type="submit" class="flex-1 bg-brand-text text-white py-3 rounded-lg">
+        <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">
           Додати
         </button>
       </div>
@@ -131,17 +133,18 @@
 </div>
 
 <!-- Модальне вікно видалення бажання -->
-<div id="deleteWishModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md p-8 text-center">
+<div id="deleteWishModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div class="bg-white rounded-2xl w-full max-w-md p-8 text-center relative z-10">
     <div class="mb-4">
       <i class="fas fa-trash-alt text-2xl text-red-500"></i>
     </div>
-    <h3 class="text-xl font-semibold text-brand-text mb-3">Видалити бажання</h3>
+    <h3 class="text-xl font-semibold text-gray-900 mb-3">Видалити бажання</h3>
     <p class="text-gray-600 mb-6">
       Ви впевнені, що хочете видалити це бажання?
     </p>
 
-    <div class="flex space-x-4">
+    <div class="flex gap-4">
       <button onclick="closeDeleteWishModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
         Скасувати
       </button>
@@ -154,12 +157,13 @@
 
 <!-- Модальне вікно підтвердження видалення бажання -->
 <div id="confirmDeleteWishModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md text-center p-8">
+  class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+  <div class="bg-white rounded-2xl w-full max-w-md text-center p-8 relative z-10">
     <div class="mb-4">
       <i class="fas fa-trash-alt text-3xl text-red-500"></i>
     </div>
-    <h3 class="text-2xl font-semibold text-brand-text mb-4">
+    <h3 class="text-2xl font-semibold text-gray-900 mb-4">
       Видалити бажання?
     </h3>
     <p class="text-gray-600 mb-6">
@@ -167,7 +171,7 @@
       скасувати.
     </p>
 
-    <div class="flex space-x-4">
+    <div class="flex gap-4">
       <button id="cancelDeleteWishBtn" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
         Скасувати
       </button>
