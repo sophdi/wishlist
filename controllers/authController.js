@@ -7,13 +7,29 @@ const showRegisterForm = (req, res) => {
 };
 
 const registerUser = [
-  body('username').isLength({ min: 2, max: 30 }).withMessage('Ім’я користувача має бути від 2 до 30 символів'),
-  body('email').isEmail().withMessage('Невірний формат email'),
-  body('password').isLength({ min: 6 }).withMessage('Пароль має бути щонайменше 6 символів'),
+  body('username')
+    .trim()
+    .isLength({ min: 2, max: 30 })
+    .withMessage("Ім'я користувача має бути від 2 до 30 символів")
+    .matches(/^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s-]+$/)
+    .withMessage("Ім'я користувача може містити тільки літери, пробіли та дефіс"),
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('Невірний формат email')
+    .normalizeEmail(),
+  body('password')
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage('Пароль має бути щонайменше 6 символів'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.render('auth/register', { errors: errors.array() });
+      return res.render('auth/register', { 
+        errors: errors.array(),
+        username: req.body.username,
+        email: req.body.email
+      });
     }
 
     const { username, email, password } = req.body;
@@ -21,7 +37,11 @@ const registerUser = [
     try {
       const existingUser = await User.findUserByEmail(email);
       if (existingUser) {
-        return res.render('auth/register', { errors: [{ msg: 'Користувач із таким email вже існує' }] });
+        return res.render('auth/register', { 
+          errors: [{ msg: 'Користувач із таким email вже існує' }],
+          username: username,
+          email: email
+        });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,30 +51,40 @@ const registerUser = [
       req.session.regenerate((err) => {
         if (err) {
           console.error('Session regeneration error:', err);
-          return res.render('auth/register', { errors: [{ msg: 'Не вдалося зареєструватися' }] });
+          return res.render('auth/register', { 
+            errors: [{ msg: 'Не вдалося зареєструватися. Спробуйте ще раз' }],
+            username: username,
+            email: email
+          });
         }
         req.session.user = { id: user.id, username: user.username };
-        console.log('Register: Session set:', req.session.user);
         res.redirect('/dashboard');
       });
     } catch (error) {
       console.error('Registration error:', error);
-      res.render('auth/register', { errors: [{ msg: 'Не вдалося зареєструватися' }] });
+      res.render('auth/register', { 
+        errors: [{ msg: 'Не вдалося зареєструватися. Спробуйте ще раз' }],
+        username: username,
+        email: email
+      });
     }
   }
 ];
 
 const showLoginForm = (req, res) => {
-  if (req.session?.user) {
-    console.log('Login: User already authenticated, redirecting to /dashboard');
-    return res.redirect('/dashboard');
-  }
   res.render('auth/login', { errors: [] });
 };
 
 const loginUser = [
-  body('email').isEmail().withMessage('Невірний формат email'),
-  body('password').notEmpty().withMessage('Введіть пароль'),
+  body('email')
+    .trim()
+    .isEmail()
+    .withMessage('Невірний формат email')
+    .normalizeEmail(),
+  body('password')
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage('Пароль має бути щонайменше 6 символів'),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -65,22 +95,38 @@ const loginUser = [
 
     try {
       const user = await User.findUserByEmail(email);
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        return res.render('auth/login', { errors: [{ msg: 'Невірний email або пароль' }] });
+      if (!user) {
+        return res.render('auth/login', { 
+          errors: [{ msg: 'Користувача з таким email не знайдено' }],
+          email: email // Preserve email for better UX
+        });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.render('auth/login', { 
+          errors: [{ msg: 'Невірний пароль' }],
+          email: email // Preserve email for better UX
+        });
       }
 
       req.session.regenerate((err) => {
         if (err) {
           console.error('Session regeneration error:', err);
-          return res.render('auth/login', { errors: [{ msg: 'Не вдалося увійти' }] });
+          return res.render('auth/login', { 
+            errors: [{ msg: 'Не вдалося увійти. Спробуйте ще раз' }],
+            email: email
+          });
         }
         req.session.user = { id: user.id, username: user.username };
-        console.log('Login: Session set:', req.session.user);
         res.redirect('/dashboard');
       });
     } catch (error) {
       console.error('Login error:', error);
-      res.render('auth/login', { errors: [{ msg: 'Не вдалося увійти' }] });
+      res.render('auth/login', { 
+        errors: [{ msg: 'Не вдалося увійти. Спробуйте ще раз' }],
+        email: email
+      });
     }
   }
 ];
@@ -94,4 +140,10 @@ const logoutUser = (req, res) => {
   });
 };
 
-module.exports = { showRegisterForm, registerUser, showLoginForm, loginUser, logoutUser };
+module.exports = {
+  showRegisterForm,
+  registerUser,
+  showLoginForm,
+  loginUser,
+  logoutUser
+};

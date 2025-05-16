@@ -26,7 +26,10 @@ class Wishlist {
       );
       return rows[0];
     } catch (error) {
-      console.error(`Error in getWishlistById (id: ${id}, userId: ${userId}):`, error);
+      console.error(
+        `Error in getWishlistById (id: ${id}, userId: ${userId}):`,
+        error
+      );
       throw error;
     }
   }
@@ -58,7 +61,10 @@ class Wishlist {
 
   static async deleteWishlist(id, userId) {
     try {
-      await pool.execute('DELETE FROM wishlists WHERE id = ? AND user_id = ?', [id, userId]);
+      await pool.execute('DELETE FROM wishlists WHERE id = ? AND user_id = ?', [
+        id,
+        userId,
+      ]);
     } catch (error) {
       console.error(`Error in deleteWishlist (id: ${id}):`, error);
       throw error;
@@ -68,8 +74,8 @@ class Wishlist {
   static async addWish(wishlistId, userId, title, description) {
     try {
       await pool.execute(
-        'INSERT INTO wishes (wishlist_id, user_id, title, description) VALUES (?, ?, ?, ?)',
-        [wishlistId, userId, title, description || null]
+        'INSERT INTO wishes (wishlist_id, title, description) VALUES (?, ?, ?)',
+        [wishlistId, title, description || null]
       );
     } catch (error) {
       console.error(`Error in addWish (wishlistId: ${wishlistId}):`, error);
@@ -80,8 +86,8 @@ class Wishlist {
   static async editWish(wishId, wishlistId, userId, title, description) {
     try {
       await pool.execute(
-        'UPDATE wishes SET title = ?, description = ? WHERE id = ? AND wishlist_id = ? AND user_id = ?',
-        [title, description || null, wishId, wishlistId, userId]
+        'UPDATE wishes SET title = ?, description = ? WHERE id = ? AND wishlist_id = ?',
+        [title, description || null, wishId, wishlistId]
       );
     } catch (error) {
       console.error(`Error in editWish (wishId: ${wishId}):`, error);
@@ -92,8 +98,8 @@ class Wishlist {
   static async deleteWish(wishId, wishlistId, userId) {
     try {
       await pool.execute(
-        'DELETE FROM wishes WHERE id = ? AND wishlist_id = ? AND user_id = ?',
-        [wishId, wishlistId, userId]
+        'DELETE FROM wishes WHERE id = ? AND wishlist_id = ?',
+        [wishId, wishlistId]
       );
     } catch (error) {
       console.error(`Error in deleteWish (wishId: ${wishId}):`, error);
@@ -104,12 +110,15 @@ class Wishlist {
   static async getWishesByWishlistId(wishlistId, userId) {
     try {
       const [rows] = await pool.execute(
-        'SELECT * FROM wishes WHERE wishlist_id = ? AND user_id = ?',
-        [wishlistId, userId]
+        'SELECT * FROM wishes WHERE wishlist_id = ?',
+        [wishlistId]
       );
       return rows;
     } catch (error) {
-      console.error(`Error in getWishesByWishlistId (wishlistId: ${wishlistId}):`, error);
+      console.error(
+        `Error in getWishesByWishlistId (wishlistId: ${wishlistId}):`,
+        error
+      );
       throw error;
     }
   }

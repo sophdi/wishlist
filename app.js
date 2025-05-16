@@ -1,66 +1,69 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
-const csurf = require('csurf');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const errorHandler = require('./middleware/errorHandler');
-const { requireAuth } = require('./middleware/authMiddleware');
+const { requireAuth, requireGuest, checkAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 
+// View engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Basic middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 24 * 60 * 60 * 1000
-    },
-    name: 'sessionId'
-  })
-);
+
+// Session and flash setup
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000,
+    sameSite: 'lax'
+  },
+  name: 'sessionId'
+}));
 app.use(flash());
-app.use(csurf());
+
+// Global variables
 app.use((req, res, next) => {
-  res.locals.csrfToken = req.csrfToken();
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   res.locals.user = req.session?.user || null;
   next();
 });
 
-// Apply requireAuth only to protected routes
-app.use((req, res, next) => {
-  const publicRoutes = ['/', '/auth/login', '/auth/register'];
-  if (publicRoutes.includes(req.path)) {
-    return next();
-  }
-  if (req.session?.user) {
-    if (req.path === '/') {
-      return res.redirect('/dashboard');
-    }
-    return next();
-  }
-  return res.redirect('/auth/login');
-});
+// Routes
+app.use(checkAuth); // Apply authentication check to all routes
 
-app.get('/', (req, res) => {
-  res.render('index', { user: null });
-});
-app.get('/dashboard', requireAuth, (req, res) => {
-  res.render('dashboard', { user: req.session.user });
-});
+// Public routes
+app.get('/', (req, res) => res.render('index'));
+app.get('/dashboard', requireAuth, (req, res) => res.render('dashboard'));
+
+// Auth routes
 app.use('/auth', authRoutes);
-app.use('/wishlists', wishlistRoutes);
 
+// Protected routes
+app.use('/wishlists', requireAuth, wishlistRoutes);
+app.use('/', requireAuth, profileRoutes);
+
+// Error handling
 app.use(errorHandler);
 
-module.exports = app;
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+}).on('error', (err) => {
+  console.error('Server failed to start:', err);
+  process.exit(1);
+});

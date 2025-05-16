@@ -1,4 +1,3 @@
-<!-- views/wishlists/wishlist.ejs -->
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -66,51 +65,9 @@
         <% } %>
       </section>
     </div>
-  </main>
-  <div id="createModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-    <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
-      <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-900">Створити вішліст</h2>
-        <button onclick="closeCreateModal()" class="text-gray-500 hover:text-gray-900">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-      <form action="/wishlists/create" method="POST" class="p-6 space-y-6">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <div>
-          <label for="title" class="block text-gray-700 font-medium mb-2">Назва</label>
-          <input type="text" id="title" name="title" class="w-full border border-gray-300 rounded-lg py-3 px-4 focus:ring-2 focus:border-transparent" placeholder="Назва вішліста" required />
-        </div>
-        <div>
-          <label for="description" class="block text-gray-700 font-medium mb-2">Опис (необов’язково)</label>
-          <textarea id="description" name="description" class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none focus:ring-2 focus:border-transparent" placeholder="Додай короткий опис..." rows="3"></textarea>
-        </div>
-        <div class="flex gap-4">
-          <button type="button" onclick="closeCreateModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">Скасувати</button>
-          <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">Створити</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  </main>  
+<%- include('../partials/wishlist-modals', { wishlist: { id: 0, title: '', description: '' } }) %>  
   <%- include('../partials/footer') %>
-  <script>
-    function openCreateModal() {
-      document.getElementById('createModal').classList.remove('hidden');
-      document.getElementById('createModal').classList.add('flex');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeCreateModal() {
-      document.getElementById('createModal').classList.add('hidden');
-      document.getElementById('createModal').classList.remove('flex');
-      document.body.style.overflow = 'auto';
-    }
-    document.getElementById('createModal').addEventListener('click', function(e) {
-      if (e.target === this) closeCreateModal();
-    });
-    document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') closeCreateModal();
-    });
-  </script>
+  <script src="/js/wishlist-modals.js"></script>
 </body>
 </html>
