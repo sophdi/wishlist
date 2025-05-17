@@ -10,8 +10,15 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   //connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+
+   // === Рекомендовані налаштування для дат ===
+  dateStrings: false, // Повертати JS Date об'єкти (це значення за замовчуванням)
+  timezone: '+00:00'  // Всі операції з датами в UTC
+  // =========================================
 });
+
+
 
 // test
 pool.getConnection()

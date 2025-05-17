@@ -7,6 +7,22 @@
     <% // Використовуємо formData з flash, якщо воно є (після помилки валідації) %>
     <% const currentUsername = formData && formData.username ? formData.username : user.username %>
     <% const currentEmail = formData && formData.email ? formData.email : user.email %>
+    <% const currentAboutMe = formData && formData.about_me ? formData.about_me : (user.about_me || '') %>
+    <% 
+      let currentBirthday = '';
+      if (formData && formData.birthday) { // formData.birthday тепер завжди рядок 'YYYY-MM-DD' або порожній
+        currentBirthday = formData.birthday;
+      } else if (user.birthday) {
+        // Тепер user.birthday - це JS Date об'єкт, що представляє північ UTC.
+        // Наприклад, для '2000-05-17' в БД, це буде Date об'єкт для 2000-05-17T00:00:00.000Z
+        const dateObj = new Date(user.birthday); // Створюємо копію або використовуємо напряму
+        if (!isNaN(dateObj.getTime())) {
+          // dateObj.toISOString() дасть "2000-05-17T00:00:00.000Z"
+          // .split('T')[0] коректно витягне "2000-05-17"
+          currentBirthday = dateObj.toISOString().split('T')[0];
+        }
+      }
+    %>
 
     <% if (success && success.length > 0) { %>
       <div class="alert-dismissible bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 relative" role="alert">
@@ -41,6 +57,7 @@
     <% } %>
 
     <form action="/profile" method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg p-6 md:p-8">
+      <!-- ... Avatar upload section ... -->
       <div class="flex flex-col items-center mb-8">
         <img 
           src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>" 
@@ -51,8 +68,8 @@
         <label for="avatar" class="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg text-sm transition duration-150 ease-in-out">
           Змінити аватар
         </label>
-        <input type="file" name="avatar" id="avatar" class="hidden" accept="image/png, image/jpeg, image/gif" onchange="previewAvatar(event)">
-        <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF до 5MB</p>
+        <input type="file" name="avatar" id="avatar" class="hidden" accept="image/png, image/jpeg, image/gif, image/webp" onchange="previewAvatar(event)">
+        <p class="text-xs text-gray-500 mt-1">PNG, JPG, GIF, WEBP до 5MB</p>
       </div>
 
       <h3 class="text-xl font-semibold mb-6 text-gray-700 border-b pb-3">Персональні дані</h3>
@@ -83,15 +100,68 @@
         </div>
 
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Новий пароль (залиште порожнім, щоб не змінювати)</label>
-          <input 
-            type="password" 
-            name="password" 
-            id="password"
+          <label for="about_me" class="block text-sm font-medium text-gray-700 mb-1">Про себе</label>
+          <textarea 
+            name="about_me" 
+            id="about_me" 
+            rows="4"
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="••••••"
+            placeholder="Розкажіть трохи про себе..."
+          ><%= currentAboutMe %></textarea>
+        </div>
+
+        <div>
+          <label for="birthday" class="block text-sm font-medium text-gray-700 mb-1">Дата народження</label>
+          <input 
+            type="date" 
+            name="birthday" 
+            id="birthday" 
+            value="<%= currentBirthday %>"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-          <p class="text-xs text-gray-500 mt-1">Мінімум 6 символів. Функціонал зміни паролю буде реалізовано пізніше.</p>
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
+          <h4 class="text-lg font-medium text-gray-900 mb-1">Зміна пароля</h4>
+          <p class="text-sm text-gray-500 mb-4">Заповніть ці поля, якщо бажаєте змінити поточний пароль.</p>
+          
+          <div class="space-y-4">
+            <div>
+              <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-1">Поточний пароль</label>
+              <input
+                type="password"
+                name="currentPassword"
+                id="currentPassword"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="••••••"
+                autocomplete="current-password"
+              >
+            </div>
+
+            <div>
+              <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Новий пароль</label>
+              <input
+                type="password"
+                name="newPassword"
+                id="newPassword"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="Мінімум 6 символів"
+                autocomplete="new-password"
+              >
+            </div>
+
+            <div>
+              <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700 mb-1">Підтвердіть новий пароль</label>
+              <input
+                type="password"
+                name="confirmNewPassword"
+                id="confirmNewPassword"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                placeholder="Повторіть новий пароль"
+                autocomplete="new-password"
+              >
+            </div>
+          </div>
         </div>
       </div>
 

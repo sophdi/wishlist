@@ -15,16 +15,17 @@ class User {
   }
 
   static async findUserById(id) {
-    const [rows] = await pool.execute('SELECT id, username, email, created_at, profile_image_url, about_me, birthday FROM users WHERE id = ?', [id]); // Додано profile_image_url та інші поля
-    return rows[0];
+    const [rows] = await pool.execute(
+      'SELECT id, username, email, password, profile_image_url, about_me, birthday, created_at FROM users WHERE id = ?',
+      [id]
+    );
+    return rows[0]; // Повертає об'єкт користувача або undefined, якщо не знайдено
   }
 
   static async updateUser(id, userData) {
     const fields = [];
     const values = [];
 
-    // Динамічно формуємо запит на оновлення
-    // на основі переданих даних в userData
     if (userData.username !== undefined) {
       fields.push('username = ?');
       values.push(userData.username);
@@ -37,15 +38,25 @@ class User {
       fields.push('profile_image_url = ?');
       values.push(userData.profile_image_url);
     }
-    // Тут можна додати оновлення інших полів, якщо вони будуть у userData
-    // наприклад, about_me, birthday
-
-    if (fields.length === 0) {
-      // Немає полів для оновлення
-      return;
+    if (userData.about_me !== undefined) {
+      fields.push('about_me = ?');
+      values.push(userData.about_me);
+    }
+    if (userData.birthday !== undefined) {
+      fields.push('birthday = ?');
+      values.push(userData.birthday); 
+    }
+    // Додаємо обробку для поля password
+    if (userData.password !== undefined) {
+      fields.push('password = ?');
+      values.push(userData.password); // Це буде новий захешований пароль
     }
 
-    values.push(id); // Додаємо id для умови WHERE
+    if (fields.length === 0) {
+      return; // Немає полів для оновлення
+    }
+
+    values.push(id);
 
     const sql = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
     await pool.execute(sql, values);
