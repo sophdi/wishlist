@@ -40,8 +40,16 @@ const checkAuth = (req, res, next) => {
   next();
 };
 
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated && req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
 module.exports = { 
   requireAuth,
   requireGuest,
-  checkAuth
+  checkAuth,
+  isAuthenticated
 };

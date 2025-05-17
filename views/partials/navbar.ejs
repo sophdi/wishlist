@@ -9,7 +9,7 @@
           <div class="hidden md:flex items-center space-x-4">
             <a href="/wishlists" class="text-gray-600 hover:text-gray-900">Вішлісти</a>
             <a href="/profile" class="text-gray-600 hover:text-gray-900">Профіль</a>
-            <a href="/auth/logout" class="bg-black text-white px-4 py-2 rounded-lg text-sm">Вийти</a>
+            <a href="#" onclick="event.preventDefault(); openLogoutConfirmModal();" class="bg-black text-white px-4 py-2 rounded-lg text-sm">Вийти</a>
           </div>
           <button id="mobile-menu-toggle" class="md:hidden text-gray-600 focus:outline-none" aria-label="Відкрити мобільне меню" aria-expanded="false" aria-controls="mobile-menu">
             <i class="fas fa-bars text-xl"></i>
@@ -41,7 +41,7 @@
           <i class="fas fa-user mr-4 text-xl"></i>
           <span class="text-lg">Профіль</span>
         </a>
-        <a href="/auth/logout" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
+        <a href="#" onclick="event.preventDefault(); openLogoutConfirmModal();" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
           <i class="fas fa-sign-out-alt mr-4 text-xl"></i>
           <span class="text-lg">Вийти</span>
         </a>

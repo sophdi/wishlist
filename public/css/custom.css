@@ -1,0 +1,41 @@
+@layer components {
+  .grid-mode {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+
+  .list-mode {
+    @apply grid grid-cols-1 gap-4;
+  }
+
+  .list-view .bg-white {
+    @apply flex items-center;
+  }
+
+  .list-view .flex.justify-between {
+    @apply w-1/3 mb-0;
+  }
+
+  .list-view .mb-4 {
+    @apply mb-0;
+  }
+
+  .list-view .min-h-\[3rem\] {
+    @apply w-1/3;
+  }
+
+  .list-view .text-sm.text-gray-500 {
+    @apply w-1/3 flex justify-end space-y-0 space-x-4;
+  }
+
+  .list-view .space-y-2 {
+    @apply flex space-y-0 space-x-4;
+  }
+
+  .grid-view .bg-white {
+    @apply block;
+  }
+
+  .view-toggle.active {
+    @apply bg-gray-200;
+  }
+}

@@ -1,5 +1,24 @@
 // public/js/wishlist-modals.js
 document.addEventListener('DOMContentLoaded', function () {
+  // Modal functionality
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
+  }
+
   // Глобальна функція відкриття модального вікна
   window.openModal = function(modalId) {
     const modal = document.getElementById(modalId);
@@ -99,6 +118,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.closeCreateModal = function() {
     closeModal('createModal');
+  };
+
+  // Функції для модального вікна виходу
+  window.openLogoutConfirmModal = function() {
+    // Close mobile menu if it's open
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+      // Use the global toggle function
+      if (typeof window.toggleMobileMenu === 'function') {
+        window.toggleMobileMenu();
+      }
+    }
+    
+    openModal('logoutConfirmModal');
+  };
+
+  window.closeLogoutConfirmModal = function() {
+    closeModal('logoutConfirmModal');
   };
 
   // Ініціалізація обробників подій для всіх модальних вікон

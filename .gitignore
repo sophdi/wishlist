@@ -60,4 +60,7 @@ temp/
 *.sqlite3
 
 # Public uploads
-public/uploads/
+public/uploads
+
+.cursor/ 
+.mdc 

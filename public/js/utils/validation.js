@@ -1,14 +1,15 @@
 // Validation patterns
 const PATTERNS = {
-  username: /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s-]{2,30}$/,
+  username: /^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s-]+$/, // Only letters, spaces and hyphens
   email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
 };
 
 // Error messages
 const ERROR_MESSAGES = {
   username: {
-    invalid: "Ім'я користувача має бути від 2 символів",
-    required: "Ім'я користувача обов'язкове",
+    invalid: 'Ім\'я користувача може містити тільки літери, пробіли та дефіс',
+    length: 'Ім\'я користувача має бути від 2 до 30 символів', // New or adjusted for length
+    required: 'Ім\'я користувача обов\'язкове',
   },
   email: {
     invalid: 'Будь ласка, введіть коректний email',
@@ -116,4 +117,4 @@ class FormValidator {
   }
 }
 
-export { FormValidator, validators, ERROR_MESSAGES }; 
+export { FormValidator, validators, ERROR_MESSAGES };

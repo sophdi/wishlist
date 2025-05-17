@@ -10,9 +10,9 @@ const registerUser = [
   body('username')
     .trim()
     .isLength({ min: 2, max: 30 })
-    .withMessage("Ім'я користувача має бути від 2 до 30 символів")
+    .withMessage('Ім\'я користувача має бути від 2 до 30 символів')
     .matches(/^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s-]+$/)
-    .withMessage("Ім'я користувача може містити тільки літери, пробіли та дефіс"),
+    .withMessage('Ім\'я користувача може містити тільки літери, пробіли та дефіс'),
   body('email')
     .trim()
     .isEmail()
@@ -115,7 +115,7 @@ const loginUser = [
           console.error('Session regeneration error:', err);
           return res.render('auth/login', { 
             errors: [{ msg: 'Не вдалося увійти. Спробуйте ще раз' }],
-            email: email
+            email: email 
           });
         }
         req.session.user = { id: user.id, username: user.username };
