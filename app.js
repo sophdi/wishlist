@@ -36,8 +36,12 @@ app.use(flash());
 
 // Global variables
 app.use((req, res, next) => {
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  const successMessages = req.flash('success');
+  const errorMessages = req.flash('error');
+  //console.log('FLASH SUCCESS (global middleware):', successMessages); // Додай це
+  //console.log('FLASH ERROR (global middleware):', errorMessages);   // Додай це
+  res.locals.success = successMessages;
+  res.locals.error = errorMessages;
   res.locals.user = req.session?.user || null;
   next();
 });
