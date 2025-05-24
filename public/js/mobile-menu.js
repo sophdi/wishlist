@@ -1,20 +1,21 @@
 // public/js/mobile-menu.js
+
 document.addEventListener('DOMContentLoaded', function () {
-  // Отримуємо елементи для мобільного меню
+  // Елементи мобільного меню
   const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
   const mobileMenuClose = document.getElementById('mobile-menu-close');
   const mobileMenu = document.getElementById('mobile-menu');
 
-  // Відкриття мобільного меню
+  // Відкрити мобільне меню
   if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', () => {
       mobileMenu.classList.remove('translate-x-full');
-      document.body.style.overflow = 'hidden'; // Блокуємо прокрутку сторінки
+      document.body.style.overflow = 'hidden';
       mobileMenuToggle.setAttribute('aria-expanded', 'true');
     });
   }
 
-  // Закриття мобільного меню
+  // Закрити мобільне меню
   if (mobileMenuClose) {
     mobileMenuClose.addEventListener('click', () => {
       mobileMenu.classList.add('translate-x-full');
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Функціональність випадаючого меню користувача
+  // Випадаюче меню користувача
   const userMenuToggle = document.getElementById('user-menu-toggle');
   const userDropdown = document.getElementById('user-dropdown');
 
@@ -35,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
       userDropdown.classList.toggle('invisible');
     });
 
-    // Закриття меню по кліку поза ним
+    // Закрити меню при кліку поза ним
     document.addEventListener('click', (event) => {
       if (!userMenuToggle.contains(event.target) && !userDropdown.contains(event.target)) {
         userMenuToggle.setAttribute('aria-expanded', 'false');

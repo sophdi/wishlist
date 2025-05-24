@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body>
+    <% if (locals.user) { %>
+        <%- include('../partials/navbar') %>
+    <% } else { %>
+        <%- include('../partials/navbar-guest') %>
+    <% } %>
+
+    <%- include('../partials/alerts') %>
+    
+    <!-- Основний контент -->
+    <%- body %>
+
+    <%- include('../partials/footer') %>
+    <%- include('../partials/logout-modal') %>
+    <script src="/js/search.js"></script>
+</body>
+</html>

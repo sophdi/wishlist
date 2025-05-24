@@ -1,52 +1,161 @@
-<body class="bg-white min-h-screen flex flex-col">
-  <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
-    <div class="container mx-auto px-4">
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex items-center justify-between h-16">
+        <!-- Logo -->
         <a href="/dashboard" class="flex items-center">
-          <span class="text-xl font-bold text-black">mriia</span>
+          <span class="text-xl font-semibold text-gray-900">mriia</span>
         </a>
-        <div class="flex items-center">
-          <div class="hidden md:flex items-center space-x-4">
-            <a href="/wishlists" class="text-gray-600 hover:text-gray-900">Вішлісти</a>
-            <a href="/profile" class="text-gray-600 hover:text-gray-900">Профіль</a>
-            <a href="#" onclick="event.preventDefault(); openLogoutConfirmModal();" class="bg-black text-white px-4 py-2 rounded-lg text-sm">Вийти</a>
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-lg mx-8 hidden md:block">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              data-search="wishlists"
+              data-target="#wishlistContainer"
+              placeholder="Пошук вішлістів..." 
+              class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
           </div>
-          <button id="mobile-menu-toggle" class="md:hidden text-gray-600 focus:outline-none" aria-label="Відкрити мобільне меню" aria-expanded="false" aria-controls="mobile-menu">
-            <i class="fas fa-bars text-xl"></i>
+        </div>
+        <!-- User Section -->
+        <div class="flex items-center gap-4">
+          <!-- Mobile Search Button -->
+          <button
+            class="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+
+          <% if (user) { %>
+          <div class="relative">
+            <button id="user-menu-button" aria-expanded="false"
+              class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors focus:outline-none">
+              <img src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>"
+                alt="<%= user.username %>" class="w-8 h-8 rounded-full object-cover" />
+              <span class="text-sm font-medium text-gray-900 hidden sm:block"><%= user.username %></span>
+              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="user-dropdown"
+              class="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-lg py-2 hidden z-50">
+              <div class="px-4 py-3 border-b border-gray-50">
+                <p class="font-medium text-gray-900"><%= user.username %></p>
+                <p class="text-sm text-gray-500">Мрійник</p>
+              </div>
+              <div class="py-1">
+                <a href="/wishlists" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  Мої вішлісти
+                </a>
+                <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  Налаштування
+                </a>
+              </div>
+              <div class="border-t border-gray-50 pt-1">
+                <button onclick="event.preventDefault(); openLogoutConfirmModal()"
+                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+                  Вийти
+                </button>
+              </div>
+            </div>
+          </div>
+          <% } %>
+
+          <!-- Mobile menu button -->
+          <button id="mobile-menu-toggle"
+            class="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
         </div>
       </nav>
     </div>
   </header>
-  <nav id="mobile-menu" class="fixed inset-0 z-[100] bg-white transform translate-x-full transition-transform duration-300 ease-in-out md:hidden" aria-label="Мобільна навігація">
-    <div class="container mx-auto px-4 py-6 h-full flex flex-col">
-      <div class="flex justify-between items-center mb-8">
-        <div class="flex items-center space-x-2">
-          <span class="text-xl font-bold text-black">mriia</span>
-        </div>
-        <button id="mobile-menu-close" class="text-gray-600 focus:outline-none" aria-label="Закрити мобільне меню">
-          <i class="fas fa-times text-2xl"></i>
+
+  <!-- Mobile Menu -->
+  <nav id="mobile-menu"
+    class="fixed inset-0 z-[100] bg-white transform translate-x-full transition-transform duration-300 ease-out md:hidden"
+    aria-label="Мобільна навігація">
+    <div class="flex flex-col h-full">
+      <!-- Mobile Header -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-100">
+        <span class="text-xl font-semibold text-gray-900">mriia</span>
+        <button id="mobile-menu-close"
+          class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+          aria-label="Закрити мобільне меню">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
-      <div class="space-y-4 flex-grow">
-        <a href="/dashboard" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
-          <i class="fas fa-tachometer-alt mr-4 text-xl"></i>
-          <span class="text-lg">Дашборд</span>
-        </a>
-        <a href="/wishlists" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
-          <i class="fas fa-gift mr-4 text-xl"></i>
-          <span class="text-lg">Вішлісти</span>
-        </a>
-        <a href="/profile" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
-          <i class="fas fa-user mr-4 text-xl"></i>
-          <span class="text-lg">Профіль</span>
-        </a>
-        <a href="#" onclick="event.preventDefault(); openLogoutConfirmModal();" class="flex items-center w-full bg-gray-50 p-4 rounded-2xl hover:bg-gray-100">
-          <i class="fas fa-sign-out-alt mr-4 text-xl"></i>
-          <span class="text-lg">Вийти</span>
-        </a>
+
+      <!-- Mobile Search -->
+      <div class="p-6 border-b border-gray-100">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" placeholder="Пошук вішлістів..."
+            class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all">
+        </div>
+      </div>
+
+      <!-- User Profile in Mobile -->
+      <% if (user) { %>
+      <div class="p-6 bg-gray-50">
+        <div class="flex items-center gap-3">
+          <img src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>"
+            alt="<%= user.username %>" class="w-12 h-12 rounded-full object-cover" />
+          <div>
+            <p class="font-semibold text-gray-900"><%= user.username %></p>
+            <p class="text-sm text-gray-600">Мрійник</p>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Mobile Navigation -->
+      <div class="flex-1 px-6 py-6">
+        <div class="space-y-2">
+          <a href="/dashboard" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
+            Дашборд
+          </a>
+          <a href="/wishlists" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
+            Мої вішлісти
+          </a>
+          <a href="/profile" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
+            Налаштування
+          </a>
+        </div>
+      </div>
+
+      <!-- Mobile Logout -->
+      <div class="p-6 border-t border-gray-100">
+        <button onclick="event.preventDefault(); openLogoutConfirmModal()"
+          class="block w-full text-left py-3 text-red-600 font-medium hover:text-red-700 transition-colors">
+          Вийти
+        </button>
       </div>
     </div>
   </nav>
   <script src="/js/mobile-menu.js" defer></script>
+  <script src="/js/userMenu.js" defer></script>
+  <script src="/js/search.js"></script>
+  <script src="/js/logout-modal.js" defer></script>
+  <%- include('../partials/logout-modal') %>
 </body>

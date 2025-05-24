@@ -1,6 +1,6 @@
-// Mobile menu functionality
+//public/js/main.js
+// Функціонал мобільного меню
 document.addEventListener('DOMContentLoaded', () => {
-  // Mobile menu toggle
   const mobileMenuButton = document.getElementById('mobileMenuButton');
   const mobileMenu = document.getElementById('mobileMenu');
   
@@ -13,5 +13,5 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileMenuButton.addEventListener('click', toggleMobileMenu);
   }
   
-  // Initialize any other UI components
+  // Тут можна ініціалізувати інші UI-компоненти
 });
