@@ -1,0 +1,35 @@
+<!-- /views/wishlists/wish-detail.ejs -->
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <%- include('../partials/head') %>
+</head>
+<body class="bg-white min-h-screen flex flex-col">
+  <%- include('../partials/navbar') %>
+  <main class="container mx-auto px-4 py-12 pt-24 flex-grow">
+    <% if (errors.length > 0) { %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <%= errors[0].msg %>
+      </div>
+    <% } else { %>
+      <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4"><%= wish.title %></h1>
+        <p class="text-gray-600 mb-6"><%= wish.description || 'Без опису' %></p>
+        <% if (wish.link) { %>
+          <a href="<%= wish.link %>" target="_blank" class="text-indigo-600 hover:underline">
+            Перейти за посиланням
+          </a>
+        <% } %>
+        <div class="mt-6">
+          <p class="text-gray-500 text-sm">Пріоритет: <%= wish.priority || 'Не вказано' %></p>
+          <% if (wish.price) { %>
+            <p class="text-gray-500 text-sm">Ціна: <%= wish.price %> <%= wish.currency || '' %></p>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+  </main>
+  <%- include('../partials/footer') %>
+    <script src="/js/wishlist-handlers.js"></script>
+</body>
+</html>

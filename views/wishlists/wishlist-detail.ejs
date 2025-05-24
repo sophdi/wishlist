@@ -1,71 +1,436 @@
+<!-- views/wishlists/wishlist-detail.ejs -->
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
   <%- include('../partials/head') %>
 </head>
-<body class="bg-white min-h-screen flex flex-col">
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
   <%- include('../partials/navbar') %>
-  <main class="container mx-auto px-4 py-12 pt-24 flex-grow">
+  <main class="max-w-7xl mx-auto px-4 py-8 pt-20 flex-grow">
     <%- include('../partials/alerts') %>
-    <div class="max-w-7xl mx-auto">
-      <section class="mb-12">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 class="text-4xl font-bold text-gray-900 mb-2"><%= wishlist.title %></h1>
-            <p class="text-gray-600"><%= wishlist.description || 'Без опису' %></p>
-          </div>
-          <div class="flex gap-4">
-            <button onclick="openEditWishlistModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg">Редагувати</button>
-            <button onclick="openDeleteConfirmModal()" class="bg-red-500 text-white px-6 py-3 rounded-lg">Видалити</button>
+
+    <!-- Header Section -->
+    <div class="mb-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center text-sm text-gray-500 mb-6">
+        <a href="/wishlists" class="hover:text-purple-600 transition-colors">Мої вішлісти</a>
+        <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+        <span class="text-gray-900"><%= wishlist.title %></span>
+      </nav>
+
+      <!-- Title with Menu -->
+      <div class="flex items-start justify-between mb-4">
+        <h1 class="text-2xl font-semibold text-gray-900"><%= wishlist.title %></h1>
+
+        <!-- Three Dots Menu -->
+        <div class="relative">
+          <button onclick="toggleWishlistMenu()"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="wishlistMenu"
+            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-10">
+            <div class="py-1">
+              <button onclick="openEditWishlistModal(); toggleWishlistMenu();"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Редагувати вішліст
+              </button>
+              <button onclick="openDeleteConfirmModal(); toggleWishlistMenu();"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Видалити вішліст
+              </button>
+            </div>
           </div>
         </div>
-      </section>
-      <section>
-        <div class="mb-8">
-          <button onclick="openCreateWishModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg flex items-center gap-2">
-            <i class="fas fa-plus"></i>
-            <span>Додати бажання</span>
+      </div>
+
+      <!-- Description -->
+      <% if (wishlist.description) { %>
+      <p class="text-gray-600 mb-4"><%= wishlist.description %></p>
+      <% } %>
+
+      <!-- Stats -->
+      <div class="text-sm text-gray-500">
+        <%= wishes.length %>
+        <%= wishes.length % 10 === 1 && wishes.length % 100 !== 11 ? 'бажання' : (wishes.length % 10 >= 2 && wishes.length % 10 <= 4 && (wishes.length % 100 < 10 || wishes.length % 100 >= 20) ? 'бажання' : 'бажань') %>
+        <% if (wishlist.created_at) { %>
+        • Створено <%= new Date(wishlist.created_at).toLocaleDateString('uk-UA') %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="mb-6">
+      <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+        <!-- Search -->
+        <div class="relative flex-1 max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            data-search="wishes"
+            data-target="#wishesContainer"
+            placeholder="Пошук бажань..." 
+            class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+        </div>
+
+        <!-- Filters and Sort -->
+        <div class="flex gap-3">
+          <!-- Status Filter -->
+          <select
+            class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <option value="all">Всі бажання</option>
+            <option value="active">Активні</option>
+            <option value="completed">Виконані</option>
+          </select>
+
+          <!-- Sort -->
+          <select
+            class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+            <option>Останні</option>
+            <option>За назвою</option>
+            <option>За ціною</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Area - Grid of Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Add New Wish Card -->
+      <div>
+        <button onclick="openCreateWishModal()"
+          class="w-full h-80 bg-white border-2 border-dashed border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 group">
+          <div
+            class="w-16 h-16 bg-gray-100 group-hover:bg-purple-100 rounded-full flex items-center justify-center mb-4 transition-colors">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-lg mb-1">Додати нове бажання</div>
+            <div class="text-sm text-gray-500">Створіть своє наступне бажання</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Wish Cards -->
+      <% if (wishes.length > 0) { %>
+      <% wishes.forEach(wish => { %>
+      <div
+        class="bg-white rounded-xl border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-80 relative group <%= wish.status === 'completed' ? 'opacity-75' : '' %>">
+        <!-- Three Dots Menu -->
+        <div class="absolute top-4 right-4 z-10">
+          <button onclick="toggleWishMenu('<%= wish.id %>')"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="wishMenu<%= wish.id %>"
+            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100">
+            <div class="py-1">
+              <button
+                onclick="openEditWishModal('<%= wish.id %>', '<%= wish.title %>', '<%= wish.description || '' %>', '<%= wish.price || '' %>', '<%= wish.currency || '' %>'); toggleWishMenu('<%= wish.id %>');"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Редагувати
+              </button>
+
+              <% if (wish.status !== 'completed') { %>
+              <button
+                onclick="openCompleteWishModal('<%= wish.id %>', '<%= wish.title %>'); toggleWishMenu('<%= wish.id %>');"
+                class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Виконати
+              </button>
+              <% } else { %>
+              <button onclick="restoreWish('<%= wish.id %>'); toggleWishMenu('<%= wish.id %>');"
+                class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Відновити
+              </button>
+              <% } %>
+
+              <button onclick="deleteWish('<%= wish.id %>'); toggleWishMenu('<%= wish.id %>');"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Видалити
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Badge -->
+        <% if (wish.status === 'completed') { %>
+        <div class="absolute top-4 left-4 z-10">
+          <div class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium flex items-center gap-1">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Виконано
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Card Content -->
+        <div class="p-6 h-full flex flex-col">
+          <!-- Image placeholder -->
+          <div class="w-full h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+            <% if (wish.image_url) { %>
+            <img src="<%= wish.image_url %>" alt="<%= wish.title %>" class="w-full h-full object-cover rounded-lg">
+            <% } else { %>
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <% } %>
+          </div>
+
+          <!-- Title -->
+          <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 flex-shrink-0"><%= wish.title %></h3>
+
+          <!-- Description -->
+          <% if (wish.description) { %>
+          <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow"><%= wish.description %></p>
+          <% } %>
+
+          <!-- Price and Date -->
+          <div class="mt-auto pt-3 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <% if (wish.price) { %>
+              <div class="font-semibold text-purple-600">
+                <%= wish.price %> <span class="text-sm"><%= wish.currency || 'UAH' %></span>
+              </div>
+              <% } %>
+              <div class="text-xs text-gray-500">
+                <% if (wish.status === 'completed' && wish.completed_at) { %>
+                Виконано <%= new Date(wish.completed_at).toLocaleDateString('uk-UA') %>
+                <% } else if (wish.created_at) { %>
+                Додано <%= new Date(wish.created_at).toLocaleDateString('uk-UA') %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+      <% } %>
+    </div>
+
+    <!-- Empty State (shown only if no wishes at all) -->
+    <% if (wishes.length === 0) { %>
+    <div class="text-center py-20 col-span-full">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900 mb-3">Додайте своє перше бажання</h2>
+      <p class="text-gray-600 mb-8 max-w-md mx-auto">
+        Почніть додавати речі, які ви хочете отримати або досягти
+      </p>
+    </div>
+    <% } %>
+  </main>
+
+  <!-- Complete Wish Modal -->
+  <div id="completeWishModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-medium text-gray-900">Виконати бажання</h3>
+          <button onclick="closeCompleteWishModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        <% if (wishes.length > 0) { %>
-          <div class="space-y-4">
-            <% wishes.forEach(wish => { %>
-              <div class="bg-white border border-gray-200 rounded-2xl p-6">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="text-xl font-semibold text-gray-900"><%= wish.title %></h3>
-                    <p class="text-gray-600"><%= wish.description || 'Без опису' %></p>
-                  </div>
-                  <div class="flex gap-2">
-                    <button onclick="openEditWishModal(`<%= wish.id %>`, `<%= wish.title %>`, `<%= wish.description || '' %>`)" class="text-gray-500 hover:text-gray-900">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <a href="/wishlists/<%= wishlist.id %>/wishes/delete/<%= wish.id %>" class="text-red-500 hover:text-red-700">
-                      <i class="fas fa-trash"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            <% }) %>
-          </div>
-        <% } else { %>
-          <div class="text-center bg-gray-50 rounded-2xl p-12">
-            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <i class="fas fa-gift text-4xl text-gray-900"></i>
-            </div>
-            <h2 class="text-2xl font-semibold text-gray-900 mb-3">Ще немає бажань</h2>
-            <p class="text-gray-600 mb-6 max-w-md mx-auto">Додай своє перше бажання!</p>
-            <button onclick="openCreateWishModal()" class="bg-gray-900 text-white px-6 py-3 rounded-lg">Додати бажання</button>
-          </div>
-        <% } %>
-      </section>
-    </div>
-  </main>
-  
-  <!-- Підключення модальних вікон -->
-  <%- include('../partials/wishlist-modals') %>
 
+        <div class="mb-4">
+          <p class="text-sm text-gray-600 mb-3">Ви впевнені, що хочете позначити це бажання як виконане?</p>
+          <p id="completeWishTitle" class="font-medium text-gray-900"></p>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Дата виконання</label>
+          <input type="date" id="completionDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="confirmCompleteWish()"
+            class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+            Виконати
+          </button>
+          <button onclick="closeCompleteWishModal()"
+            class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors">
+            Скасувати
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Підключення модалок -->
+  <%- include('../partials/modals/wishlist-modals') %>
+  <%- include('../partials/modals/wish-modals') %>
   <%- include('../partials/footer') %>
-  <script src="/js/wishlist-modals.js"></script>
+
+  <script src="/js/modal-handlers.js"></script>
+  <script src="/js/wishlist-view.js"></script>
+  <!-- Перед закриваючим тегом body -->
+  <script src="/js/wish-form-handler.js"></script>
+
+  <script>
+    let currentWishToComplete = null;
+
+    // Toggle wishlist menu
+    function toggleWishlistMenu() {
+      const menu = document.getElementById('wishlistMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    // Toggle wish menu
+    function toggleWishMenu(wishId) {
+      const menu = document.getElementById('wishMenu' + wishId);
+      // Close all other menus
+      document.querySelectorAll('[id^="wishMenu"]').forEach(m => {
+        if (m.id !== 'wishMenu' + wishId) {
+          m.classList.add('hidden');
+        }
+      });
+      menu.classList.toggle('hidden');
+    }
+
+    // Complete wish modal functions
+    function openCompleteWishModal(wishId, wishTitle) {
+      currentWishToComplete = wishId;
+      document.getElementById('completeWishTitle').textContent = wishTitle;
+      document.getElementById('completionDate').valueAsDate = new Date();
+      document.getElementById('completeWishModal').classList.remove('hidden');
+    }
+
+    function closeCompleteWishModal() {
+      document.getElementById('completeWishModal').classList.add('hidden');
+      currentWishToComplete = null;
+    }
+
+    function confirmCompleteWish() {
+      if (currentWishToComplete) {
+        const completionDate = document.getElementById('completionDate').value;
+        if (!completionDate) {
+          alert('Будь ласка, виберіть дату виконання.');
+          return;
+        }
+        window.location.href = `/wishlists/<%= wishlist.id %>/wishes/${currentWishToComplete}/complete?date=${completionDate}`;
+      }
+    }
+
+    // Restore wish
+    function restoreWish(wishId) {
+      if (confirm('Відновити це бажання як активне?')) {
+        // TODO: Send to server
+        window.location.href = `/wishlists/<%= wishlist.id %>/wishes/${wishId}/restore`;
+      }
+    }
+
+    // Delete wish
+    function deleteWish(wishId) {
+      if (confirm('Ви впевнені, що хочете видалити це бажання?')) {
+        window.location.href = `/wishlists/<%= wishlist.id %>/wishes/delete/${wishId}`;
+      }
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('[id^="wishMenu"]') && !event.target.closest('button[onclick^="toggleWishMenu"]')) {
+        document.querySelectorAll('[id^="wishMenu"]').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+
+      const wishlistMenu = document.getElementById('wishlistMenu');
+      const wishlistButton = event.target.closest('button[onclick="toggleWishlistMenu()"]');
+      if (!wishlistButton && !wishlistMenu.contains(event.target)) {
+        wishlistMenu.classList.add('hidden');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Search and filter functionality
+      const searchInput = document.querySelector('input[placeholder="Пошук бажань..."]');
+      const statusFilter = document.querySelector('select option[value="all"]')?.parentElement; 
+      const sortSelect = document.querySelectorAll('select')[1];
+
+      if (searchInput) {
+        searchInput.addEventListener('input', function () {
+          // TODO: Filter wishes by search term
+          console.log('Search wishes:', this.value);
+        });
+      }
+
+      if (statusFilter) {
+        statusFilter.addEventListener('change', function () {
+          // TODO: Filter by status
+          console.log('Filter by status:', this.value);
+        });
+      }
+
+      if (sortSelect) {
+        sortSelect.addEventListener('change', function () {
+          // TODO: Sort wishes
+          console.log('Sort wishes by:', this.value);
+        });
+      }
+    });
+  </script>
+
+  <style>
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
 </body>
+
 </html>

@@ -1,88 +1,207 @@
 // models/Wish.js
-// модель для роботи з таблицею "wishes" у бд
+const pool = require('../config/db');
 
-const db = require('../config/db');
+class Wish {
+  // Константи для валідації та дефолтних значень полів бажання
+  static get CONSTANTS() {
+    return {
+      PRIORITIES: ['low', 'medium', 'high'],
+      STATUSES: ['active', 'completed', 'archived'],
+      DEFAULT_CURRENCY: 'UAH',
+      MAX_TITLE_LENGTH: 255,
+      MAX_LINK_LENGTH: 1024
+    };
+  }
 
-// Додавання нового бажання до списку бажань
-const createWish = (
-  wishlistId,
-  title,
-  description,
-  price,
-  currency,
-  priority,
-  link
-) => {
-  return new Promise((resolve, reject) => {
-    const sql = `
-            INSERT INTO wishes (wishlist_id, title, description, price, currency, priority, link)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-    db.query(
-      sql,
-      [wishlistId, title, description, price || null, currency, priority, link], // price може бути null
-      (err, result) => {
-        if (err) reject(err); 
-        resolve(result); 
+  // Повертає всі бажання для заданого wishlistId, відсортовані за датою створення (новіші першими)
+  static async findByWishlistId(wishlistId) {
+    try {
+      const [rows] = await pool.execute(`
+        SELECT 
+          id,
+          title,
+          description,
+          price,
+          currency,
+          priority,
+          status,
+          link,
+          image_url,
+          created_at,
+          updated_at
+        FROM wishes 
+        WHERE wishlist_id = ?
+        ORDER BY created_at DESC
+      `, [wishlistId]);
+
+      return rows;
+    } catch (error) {
+      console.error('Error finding wishes:', error);
+      throw error;
+    }
+  }
+
+  // Повертає бажання за id та wishlistId, або null якщо не знайдено
+  static async findById(id, wishlistId) {
+    try {
+      const [rows] = await pool.execute(`
+        SELECT * FROM wishes 
+        WHERE id = ? AND wishlist_id = ?
+      `, [id, wishlistId]);
+
+      return rows[0] || null;
+    } catch (error) {
+      console.error('Error finding wish:', error);
+      throw error;
+    }
+  }
+
+  // Створює нове бажання у вказаному вішлісті, повертає id нового запису
+  static async create(wishlistId, wishData) {
+    try {
+      const [result] = await pool.execute(`
+      INSERT INTO wishes (wishlist_id, title, description, price, currency, priority, link, image_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+        wishlistId,
+        wishData.title,
+        wishData.description || null,
+        wishData.price || null,
+        wishData.currency || 'UAH',
+        wishData.priority || 'medium',
+        wishData.link || null,
+        wishData.image_url || null
+      ]);
+      return result.insertId;
+    } catch (error) {
+      console.error('Error creating wish:', error);
+      throw error;
+    }
+  }
+
+  // Оновлює дані бажання за id та wishlistId, повертає true якщо оновлено
+  static async update(id, wishlistId, wishData) {
+    try {
+      const [result] = await pool.execute(`
+        UPDATE wishes 
+        SET 
+          title = ?,
+          description = ?,
+          price = ?,
+          currency = ?,
+          priority = ?,
+          status = ?,
+          link = ?,
+          image_url = ?
+        WHERE id = ? AND wishlist_id = ?
+      `, [
+        wishData.title,
+        wishData.description || null,
+        wishData.price || null,
+        wishData.currency || this.CONSTANTS.DEFAULT_CURRENCY,
+        wishData.priority || 'medium',
+        wishData.status || 'active',
+        wishData.link || null,
+        wishData.image_url || null,
+        id,
+        wishlistId
+      ]);
+
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Error updating wish:', error);
+      throw error;
+    }
+  }
+
+  // Видаляє бажання за id та wishlistId, повертає true якщо видалено
+  static async delete(id, wishlistId) {
+    try {
+      const [result] = await pool.execute(
+        'DELETE FROM wishes WHERE id = ? AND wishlist_id = ?',
+        [id, wishlistId]
+      );
+
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Error deleting wish:', error);
+      throw error;
+    }
+  }
+
+  // Оновлює статус бажання за id та wishlistId, повертає true якщо оновлено
+  static async updateStatus(id, wishlistId, status) {
+    try {
+      const [result] = await pool.execute(
+        'UPDATE wishes SET status = ? WHERE id = ? AND wishlist_id = ?',
+        [status, id, wishlistId]
+      );
+
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Error updating wish status:', error);
+      throw error;
+    }
+  }
+
+  // Пошук по бажаннях
+  static async search(wishlistId, searchTerm) {
+    try {
+      const [rows] = await pool.execute(`
+        SELECT * FROM wishes 
+        WHERE wishlist_id = ? 
+        AND (
+          title LIKE ? 
+          OR description LIKE ?
+        )
+        ORDER BY created_at DESC
+      `, [wishlistId, `%${searchTerm}%`, `%${searchTerm}%`]);
+      
+      return rows;
+    } catch (error) {
+      console.error('Error searching wishes:', error);
+      throw error;
+    }
+  }
+
+  // Пошук по бажаннях з розширеними опціями
+  static async search(wishlistId, searchTerm, options = {}) {
+    try {
+      let query = `
+        SELECT * FROM wishes 
+        WHERE wishlist_id = ? 
+        AND (
+          LOWER(title) LIKE LOWER(?) 
+          OR LOWER(description) LIKE LOWER(?)
+          ${options.includePriority ? 'OR LOWER(priority) LIKE LOWER(?)' : ''}
+          ${options.includeStatus ? 'OR LOWER(status) LIKE LOWER(?)' : ''}
+          ${options.includePrice ? 'OR price <= ?' : ''}
+        )
+      `;
+
+      // Додаємо сортування
+      if (options.sortBy) {
+        const sortOrder = options.sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+        query += ` ORDER BY ${options.sortBy} ${sortOrder}`;
+      } else {
+        query += ' ORDER BY created_at DESC';
       }
-    );
-  });
-};
 
-// Отримання всіх бажань за ідентифікатором списку бажань
-const getWishesByWishlistId = (wishlistId) => {
-  return new Promise((resolve, reject) => {
-    const sql = 'SELECT * FROM wishes WHERE wishlist_id = ?';
-    db.query(sql, [wishlistId], (err, results) => {
-      if (err) reject(err); 
-      resolve(results); 
-    });
-  });
-};
+      const searchPattern = `%${searchTerm}%`;
+      const queryParams = [wishlistId, searchPattern, searchPattern];
 
-// Оновлення існуючого бажання
-const updateWish = (
-  wishId,
-  title,
-  description,
-  price,
-  currency,
-  priority,
-  link
-) => {
-  return new Promise((resolve, reject) => {
-    const numericPrice = price ? parseFloat(price) : null; // Конвертуємо price у число або null
+      // Додаємо додаткові параметри якщо потрібно
+      if (options.includePriority) queryParams.push(searchPattern);
+      if (options.includeStatus) queryParams.push(searchPattern);
+      if (options.includePrice) queryParams.push(parseFloat(searchTerm) || 0);
 
-    const sql = `
-            UPDATE wishes 
-            SET title = ?, description = ?, price = ?, currency = ?, priority = ?, link = ?
-            WHERE id = ?
-        `;
-    db.query(
-      sql,
-      [title, description, numericPrice, currency, priority, link, wishId], // Передаємо параметри для оновлення
-      (err, result) => {
-        if (err) reject(err); 
-        resolve(result); 
-      }
-    );
-  });
-};
+      const [rows] = await pool.execute(query, queryParams);
+      return rows;
+    } catch (error) {
+      console.error('Error searching wishes:', error);
+      throw error;
+    }
+  }
+}
 
-// Видалення бажання за його ідентифікатором
-const deleteWish = (wishId) => {
-  return new Promise((resolve, reject) => {
-    const sql = 'DELETE FROM wishes WHERE id = ?';
-    db.query(sql, [wishId], (err, result) => {
-      if (err) reject(err); 
-      resolve(result); 
-    });
-  });
-};
-
-module.exports = {
-  createWish,
-  updateWish,
-  getWishesByWishlistId,
-  deleteWish,
-};
+module.exports = Wish;
