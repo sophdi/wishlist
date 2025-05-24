@@ -1,3 +1,8 @@
+//middleware/authMiddleware.js
+
+/**
+ * Middleware для захисту маршрутів — допускає лише авторизованих користувачів.
+ */
 const requireAuth = (req, res, next) => {
   if (!req.session?.user) {
     req.flash('error', 'Будь ласка, увійдіть');
@@ -6,6 +11,9 @@ const requireAuth = (req, res, next) => {
   next();
 };
 
+/**
+ * Middleware для гостьових маршрутів — якщо користувач вже авторизований, перенаправляє на дашборд.
+ */
 const requireGuest = (req, res, next) => {
   if (req.session?.user) {
     return res.redirect('/dashboard');
@@ -13,43 +21,43 @@ const requireGuest = (req, res, next) => {
   next();
 };
 
-const publicRoutes = ['/', '/auth/login', '/auth/register', '/auth/logout'];
-
 const checkAuth = (req, res, next) => {
-  // Skip auth check for static files
-  if (req.path.startsWith('/css/') || req.path.startsWith('/js/') || req.path.startsWith('/images/')) {
+  const path = req.path;
+
+  // Дозволяємо доступ до статичних файлів
+  if (
+    path.startsWith('/css/') ||
+    path.startsWith('/js/') ||
+    path.startsWith('/images/') ||
+    path.startsWith('/uploads/')
+  ) {
     return next();
   }
 
-  // Allow access to public routes
-  if (publicRoutes.includes(req.path)) {
+  // Root
+  if (path === '/') {
     return next();
   }
 
-  // Check if user is authenticated
+  // Дозволяємо доступ до маршрутів автентифікації
+  if (path.startsWith('/auth/')) {
+    return next();
+  }
+
+  // Для інших маршрутів перевіряємо автентифікацію
   if (!req.session?.user) {
-    req.flash('error', 'Будь ласка, увійдіть');
+    if (typeof req.flash === 'function') {
+      req.flash('error', 'Будь ласка, увійдіть');
+    }
     return res.redirect('/auth/login');
-  }
-
-  // If user is authenticated and tries to access login/register, redirect to dashboard
-  if (req.session.user && (req.path === '/auth/login' || req.path === '/auth/register')) {
-    return res.redirect('/dashboard');
   }
 
   next();
 };
 
-function isAuthenticated(req, res, next) {
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    return next();
-  }
-  res.redirect('/login');
-}
 
-module.exports = { 
+module.exports = {
   requireAuth,
   requireGuest,
-  checkAuth,
-  isAuthenticated
+  checkAuth
 };

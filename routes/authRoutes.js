@@ -1,13 +1,14 @@
-// routes/authRoutes.js
 const express = require('express');
-const { showRegisterForm, registerUser, showLoginForm, loginUser, logoutUser } = require('../controllers/authController');
-
 const router = express.Router();
+const authController = require('../controllers/authController');
 
-router.get('/register', showRegisterForm);
-router.post('/register', registerUser);
-router.get('/login', showLoginForm);
-router.post('/login', loginUser);
-router.get('/logout', logoutUser);
+// Перевірка email на унікальність
+router.post('/check-email', authController.checkEmail);
+
+router.get('/register', authController.showRegisterForm);
+router.post('/register', authController.registerUser);
+router.get('/login', authController.showLoginForm);
+router.post('/login', authController.loginUser);
+router.get('/logout', authController.logoutUser);
 
 module.exports = router;
