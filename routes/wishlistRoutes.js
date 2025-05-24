@@ -2,29 +2,31 @@
 
 const express = require('express');
 const router = express.Router();
-
 const wishlistController = require('../controllers/wishlistController');
 const { requireAuth } = require('../middleware/authMiddleware');
+const { body } = require('express-validator');
 
-// Списки бажань
+// Валідація для вішліста
+const validateWishlist = [
+  body('title')
+    .trim()
+    .notEmpty().withMessage('Назва обовʼязкова')
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Назва має бути від 1 до 100 символів'),
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Опис не може перевищувати 500 символів')
+];
+
+// CRUD для вішлістів
 router.get('/', requireAuth, wishlistController.showWishlists);
-
+router.get('/search', requireAuth, wishlistController.searchWishlists);
 router.get('/:id', requireAuth, wishlistController.showWishlistWithWishes);
-router.post('/create', requireAuth, wishlistController.createWishlist);
-router.post('/:id/edit', requireAuth, wishlistController.updateWishlist);
-router.get('/delete/:id', requireAuth, wishlistController.deleteWishlist);
-
-// Бажання
-router.post('/:id/wishes/create', requireAuth, wishlistController.addWish);
-router.post(
-  '/:wishlistId/wishes/edit/:wishId',
-  requireAuth,
-  wishlistController.editWish
-);
-router.get(
-  '/:wishlistId/wishes/delete/:wishId',
-  requireAuth,
-  wishlistController.deleteWish
-);
+router.get('/:id/wishes/search', requireAuth, wishlistController.searchWishes);
+router.post('/create', requireAuth, validateWishlist, wishlistController.create);
+router.post('/:id/edit', requireAuth, validateWishlist, wishlistController.update);
+router.post('/:id/delete', requireAuth, wishlistController.delete); 
 
 module.exports = router;

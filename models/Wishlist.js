@@ -1,40 +1,51 @@
+//models/Wishlist.js
 const pool = require('../config/db');
 
 class Wishlist {
-  static async getWishlistsByUserId(userId) {
+  // Повертає всі вішлісти користувача
+  static async findAll(userId) {
     try {
-      const [rows] = await pool.execute(
-        `SELECT w.id, w.title, w.description, w.created_at, COUNT(wi.id) as items_count
-         FROM wishlists w
-         LEFT JOIN wishes wi ON w.id = wi.wishlist_id
-         WHERE w.user_id = ?
-         GROUP BY w.id, w.title, w.description, w.created_at`,
-        [userId]
-      );
+      const [rows] = await pool.execute(`
+        SELECT 
+          w.*,
+          COUNT(DISTINCT wi.id) as wishes_count,
+          SUM(CASE WHEN wi.priority = 'high' THEN 1 ELSE 0 END) as high_priority_count
+        FROM wishlists w
+        LEFT JOIN wishes wi ON w.id = wi.wishlist_id
+        WHERE w.user_id = ?
+        GROUP BY w.id
+        ORDER BY w.created_at DESC
+      `, [userId]);
+
       return rows;
     } catch (error) {
-      console.error('Error in getWishlistsByUserId:', error);
+      console.error('Error finding all wishlists:', error);
       throw error;
     }
   }
 
-  static async getWishlistById(id, userId) {
+  // Повертає вішліст за id та userId з кількістю бажань, або null якщо не знайдено
+  static async findById(wishlistId, userId) {
     try {
-      const [rows] = await pool.execute(
-        'SELECT * FROM wishlists WHERE id = ? AND user_id = ?',
-        [id, userId]
-      );
-      return rows[0];
+      const [rows] = await pool.execute(`
+        SELECT 
+          w.*,
+          COUNT(DISTINCT wi.id) as wishes_count
+        FROM wishlists w
+        LEFT JOIN wishes wi ON w.id = wi.wishlist_id
+        WHERE w.id = ? AND w.user_id = ?
+        GROUP BY w.id
+      `, [wishlistId, userId]);
+
+      return rows[0] || null;
     } catch (error) {
-      console.error(
-        `Error in getWishlistById (id: ${id}, userId: ${userId}):`,
-        error
-      );
+      console.error('Error finding wishlist:', error);
       throw error;
     }
   }
 
-  static async createWishlist(userId, title, description) {
+  // Створює новий вішліст для користувача, повертає id нового запису
+  static async create(userId, { title, description }) {
     try {
       const [result] = await pool.execute(
         'INSERT INTO wishlists (user_id, title, description) VALUES (?, ?, ?)',
@@ -42,83 +53,75 @@ class Wishlist {
       );
       return result.insertId;
     } catch (error) {
-      console.error('Error in createWishlist:', error);
+      console.error('Error creating wishlist:', error);
       throw error;
     }
   }
 
-  static async updateWishlist(id, userId, title, description) {
+  // Оновлює вішліст за id та userId
+  static async update(wishlistId, userId, { title, description }) {
     try {
-      await pool.execute(
+      const [result] = await pool.execute(
         'UPDATE wishlists SET title = ?, description = ? WHERE id = ? AND user_id = ?',
-        [title, description || null, id, userId]
-      );
+        [title, description, wishlistId, userId]);
+      return result.affectedRows > 0;
     } catch (error) {
-      console.error(`Error in updateWishlist (id: ${id}):`, error);
+      console.error('Error updating wishlist:', error);
       throw error;
     }
   }
 
-  static async deleteWishlist(id, userId) {
+  // Видаляє вішліст та всі його бажання у транзакції, повертає true якщо видалено
+  static async delete(wishlistId, userId) {
+    let connection;
     try {
-      await pool.execute('DELETE FROM wishlists WHERE id = ? AND user_id = ?', [
-        id,
-        userId,
-      ]);
-    } catch (error) {
-      console.error(`Error in deleteWishlist (id: ${id}):`, error);
-      throw error;
-    }
-  }
+      connection = await pool.getConnection();
+      await connection.beginTransaction();
 
-  static async addWish(wishlistId, userId, title, description) {
-    try {
-      await pool.execute(
-        'INSERT INTO wishes (wishlist_id, title, description) VALUES (?, ?, ?)',
-        [wishlistId, title, description || null]
-      );
-    } catch (error) {
-      console.error(`Error in addWish (wishlistId: ${wishlistId}):`, error);
-      throw error;
-    }
-  }
-
-  static async editWish(wishId, wishlistId, userId, title, description) {
-    try {
-      await pool.execute(
-        'UPDATE wishes SET title = ?, description = ? WHERE id = ? AND wishlist_id = ?',
-        [title, description || null, wishId, wishlistId]
-      );
-    } catch (error) {
-      console.error(`Error in editWish (wishId: ${wishId}):`, error);
-      throw error;
-    }
-  }
-
-  static async deleteWish(wishId, wishlistId, userId) {
-    try {
-      await pool.execute(
-        'DELETE FROM wishes WHERE id = ? AND wishlist_id = ?',
-        [wishId, wishlistId]
-      );
-    } catch (error) {
-      console.error(`Error in deleteWish (wishId: ${wishId}):`, error);
-      throw error;
-    }
-  }
-
-  static async getWishesByWishlistId(wishlistId, userId) {
-    try {
-      const [rows] = await pool.execute(
-        'SELECT * FROM wishes WHERE wishlist_id = ?',
+      // Видаляє всі бажання вішліста
+      await connection.execute(
+        'DELETE FROM wishes WHERE wishlist_id = ?',
         [wishlistId]
       );
+
+      // Видаляє сам вішліст
+      const [result] = await connection.execute(
+        'DELETE FROM wishlists WHERE id = ? AND user_id = ?',
+        [wishlistId, userId]
+      );
+
+      await connection.commit();
+      return result.affectedRows > 0;
+    } catch (error) {
+      if (connection) await connection.rollback();
+      console.error('Error deleting wishlist:', error);
+      throw error;
+    } finally {
+      if (connection) connection.release();
+    }
+  }
+
+  // Пошук по вішлістах
+  static async search(userId, searchTerm) {
+    try {
+      const [rows] = await pool.execute(`
+        SELECT 
+          w.*,
+          COUNT(DISTINCT wi.id) as wishes_count
+        FROM wishlists w
+        LEFT JOIN wishes wi ON w.id = wi.wishlist_id
+        WHERE w.user_id = ? 
+        AND (
+          w.title LIKE ? 
+          OR w.description LIKE ?
+        )
+        GROUP BY w.id
+        ORDER BY w.created_at DESC
+      `, [userId, `%${searchTerm}%`, `%${searchTerm}%`]);
+      
       return rows;
     } catch (error) {
-      console.error(
-        `Error in getWishesByWishlistId (wishlistId: ${wishlistId}):`,
-        error
-      );
+      console.error('Error searching wishlists:', error);
       throw error;
     }
   }
