@@ -38,4 +38,13 @@
   .view-toggle.active {
     @apply bg-gray-200;
   }
+
+  /* Додаємо стилі для відображення помилок */
+  .error-input {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+  }
+
+  .error-message {
+    @apply text-red-500 text-sm mt-1;
+  }
 }

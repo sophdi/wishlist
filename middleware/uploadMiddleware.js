@@ -1,27 +1,48 @@
+//middleware/uploadMiddleware.js
+
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
-// Перевірка та створення директорії, якщо вона не існує
+// Шляхи для збереження файлів
 const avatarUploadPath = path.join(__dirname, '..', 'public', 'uploads', 'avatars');
-if (!fs.existsSync(avatarUploadPath)) {
-  fs.mkdirSync(avatarUploadPath, { recursive: true });
-}
+const wishPhotoUploadPath = path.join(__dirname, '..', 'public', 'uploads', 'wishes');
 
-// Налаштування сховища для файлів
-const avatarStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, avatarUploadPath); // Шлях для збереження аватарок
-  },
-  filename: function (req, file, cb) {
-    // Генерація унікального імені файлу
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  },
+// Створюємо директорії для збереження файлів
+[avatarUploadPath, wishPhotoUploadPath].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
 });
 
-// Фільтр для типів файлів (дозволяємо тільки зображення)
-const avatarFileFilter = (req, file, cb) => {
+// Генерує унікальне ім'я файлу для аватарки
+const generateAvatarFilename = (file) => {
+  const uuid = uuidv4();
+  const timestamp = Date.now();
+  const ext = path.extname(file.originalname).toLowerCase();
+  return `${timestamp}-${uuid}${ext}`;
+};
+
+// Оптимізована функція генерації імені файлу
+const generateUniqueFilename = (file) => {
+  const uuid = uuidv4();
+  const ext = path.extname(file.originalname).toLowerCase();
+  return `${uuid}${ext}`;
+};
+
+// Генерує унікальні імена файлів для фото бажань
+const generateWishPhotoFilenames = (file) => {
+  const uuid = uuidv4();
+  const ext = path.extname(file.originalname).toLowerCase();
+  return {
+    temp: `${uuid}_temp${ext}`,
+    final: `${uuid}${ext}`
+  };
+};
+
+// Фільтр для зображень
+const imageFileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
@@ -29,12 +50,34 @@ const avatarFileFilter = (req, file, cb) => {
   }
 };
 
-const uploadAvatar = multer({
-  storage: avatarStorage,
-  fileFilter: avatarFileFilter,
-  limits: {
-    fileSize: 1024 * 1024 * 5, // Обмеження розміру файлу 5MB
-  },
+// Налаштування для збереження аватарок
+const avatarStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, avatarUploadPath),
+  filename: (req, file, cb) => cb(null, generateUniqueFilename(file))
 });
 
-module.exports = { uploadAvatar };
+// Налаштування для збереження фото бажань
+const wishPhotoStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, wishPhotoUploadPath),
+  filename: (req, file, cb) => {
+    const fileNames = generateWishPhotoFilenames(file);
+    req.generatedFileNames = fileNames;
+    cb(null, fileNames.temp);
+  }
+});
+
+// Middleware для завантаження аватарок (до 5MB, лише зображення)
+const uploadAvatar = multer({
+  storage: avatarStorage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 1024 * 1024 * 5 },
+});
+
+// Middleware для завантаження фото бажань (до 5MB, лише зображення)
+const uploadWishPhoto = multer({
+  storage: wishPhotoStorage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 1024 * 1024 * 5 },
+});
+
+module.exports = { uploadAvatar, uploadWishPhoto };

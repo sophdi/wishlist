@@ -1,11 +1,17 @@
+//controllers/profileController.js
+// Контролер профілю користувача
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const fs = require('fs');
 const fsp = fs.promises;
 const path = require('path');
 const sharp = require('sharp');
-const bcrypt = require('bcryptjs'); // Додаємо bcrypt
+const bcrypt = require('bcryptjs');
 
+/**
+ * Відображення сторінки профілю користувача.
+ * Витягує дані користувача з БД та flash-дані для форми.
+ */
 const showProfile = async (req, res) => {
   try {
     const user = await User.findUserById(req.session.user.id);
@@ -22,8 +28,12 @@ const showProfile = async (req, res) => {
     res.status(500).render('error', { message: 'Помилка при завантаженні профілю' });
   }
 };
-
+/**
+ * Оновлення профілю користувача.
+ * Включає валідацію, зміну пароля, обробку аватара, оновлення БД та сесії.
+ */
 const updateProfile = [
+    // Валідація полів профілю
   body('username')
     .trim()
     .isLength({ min: 2, max: 30 })
@@ -44,15 +54,15 @@ const updateProfile = [
     .isISO8601({ strict: true, strictSeparator: true })
     .withMessage('Невірний формат дати народження (очікується YYYY-MM-DD).'),
 
-  // Валідатори для пароля (спрацьовують, тільки якщо поля заповнені)
+  // Валідація пароля (тільки якщо змінюється)
   body('currentPassword')
-    .if(body('newPassword').notEmpty()) // Якщо введено новий пароль, поточний є обов'язковим
+    .if(body('newPassword').notEmpty())
     .notEmpty().withMessage('Поточний пароль є обов\'язковим для зміни пароля.'),
   body('newPassword')
-    .if(body('newPassword').notEmpty()) // Якщо поле нового пароля не порожнє
+    .if(body('newPassword').notEmpty())
     .isLength({ min: 6 }).withMessage('Новий пароль має містити щонайменше 6 символів.'),
   body('confirmNewPassword')
-    .if(body('newPassword').notEmpty()) // Якщо введено новий пароль, підтвердження є обов'язковим
+    .if(body('newPassword').notEmpty())
     .custom((value, { req }) => {
       if (value !== req.body.newPassword) {
         throw new Error('Нові паролі не співпадають.');
@@ -63,7 +73,7 @@ const updateProfile = [
   async (req, res) => {
     const errors = validationResult(req);
     let userForRender;
-    
+    // 1. Витягуємо користувача для оновлення
     try {
       userForRender = await User.findUserById(req.session.user.id);
       if (!userForRender) {
@@ -76,19 +86,19 @@ const updateProfile = [
       return res.redirect('/profile');
     }
 
-    // Не передаємо значення полів пароля назад у formData для безпеки
+    // 2. Не передаємо паролі назад у formData (безпека)
     const { currentPassword, newPassword, confirmNewPassword, ...otherFormData } = req.body;
-
+    // 3. Якщо є помилки валідації — повертаємо форму з помилками
     if (!errors.isEmpty()) {
       req.flash('validationErrors', errors.array());
-      req.flash('formData', otherFormData); // otherFormData НЕ містить паролів
+      req.flash('formData', otherFormData);
       return res.redirect('/profile');
     }
 
     let newAvatarFileToDeleteOnError = null;
 
     try {
-      const { username, email, about_me } = req.body; // currentPassword, newPassword, confirmNewPassword вже витягнуті
+      const { username, email, about_me } = req.body;
       let birthdayValue = req.body.birthday;
 
       if (birthdayValue === undefined || birthdayValue === '') {
@@ -98,71 +108,52 @@ const updateProfile = [
       const userDataToUpdate = { username, email, about_me, birthday: birthdayValue };
       const oldAvatarPathFromDB = userForRender.profile_image_url;
 
-      // Логіка зміни пароля
+      // 4. Логіка зміни пароля (тільки якщо користувач хоче змінити)
       if (newPassword && newPassword.trim() !== '') {
-        // логування для діагностики
-        // console.log('--- Debugging password change ---');
-        // console.log('Value of currentPassword:', currentPassword);
-        // console.log('Type of currentPassword:', typeof currentPassword);
-        // console.log('Value of userForRender.password:', userForRender.password);
-        // console.log('Type of userForRender.password:', typeof userForRender.password);
-        // console.log('--- End of debugging ---');
-
         const isMatch = await bcrypt.compare(currentPassword, userForRender.password);
         if (!isMatch) {
           req.flash('error', 'Невірний поточний пароль.');
           req.flash('formData', otherFormData);
           return res.redirect('/profile');
         }
-        // Новий пароль та підтвердження вже перевірені валідатором на співпадіння
+        // Хешуємо новий пароль
         const salt = await bcrypt.genSalt(10);
         userDataToUpdate.password = await bcrypt.hash(newPassword, salt);
       }
-
+      // 5. Обробка аватара (збереження, конвертація, видалення старого)
       if (req.file) {
-        const originalUploadedPath = req.file.path;
-        const originalUploadedFilename = req.file.filename;
-        
-        const webpFilename = originalUploadedFilename.replace(/\.[^/.]+$/, '') + '.webp';
-        const webpPath = path.join(path.dirname(originalUploadedPath), webpFilename);
+        const originalPath = req.file.path;
+        const fileName = req.file.filename;
+        const outputFileName = fileName.replace(/\.[^/.]+$/, '') + '.webp';
 
+        await sharp(originalPath)
+          .resize(200, 200, { 
+            fit: 'cover',
+            position: sharp.strategy.entropy
+          })
+          .webp({ quality: 90 })
+          .toFile(path.join(path.dirname(originalPath), outputFileName));
+
+        userDataToUpdate.profile_image_url = `/uploads/avatars/${outputFileName}`;
+        newAvatarFileToDeleteOnError = path.join(path.dirname(originalPath), outputFileName);
+        // Видаляємо оригінал після успішної конвертації
         try {
-          await sharp(originalUploadedPath)
-            .resize(200, 200, { 
-              fit: 'cover',
-              position: sharp.strategy.entropy
-            })
-            .webp({ quality: 90 }) // Або інше значення якості
-            .toFile(webpPath);
-
-          userDataToUpdate.profile_image_url = `/uploads/avatars/${webpFilename}`;
-          newAvatarFileToDeleteOnError = webpPath;
-
-          try {
-            await fsp.unlink(originalUploadedPath);
-          } catch (unlinkErr) {
-            console.error('Failed to delete original uploaded avatar after WebP conversion:', unlinkErr);
-          }
-
-        } catch (processingError) {
-          console.error('Error processing image to WebP:', processingError);
-          userDataToUpdate.profile_image_url = `/uploads/avatars/${originalUploadedFilename}`;
-          newAvatarFileToDeleteOnError = originalUploadedPath;
-          req.flash('info', 'Не вдалося оптимізувати зображення, використано оригінал.');
+          await fsp.unlink(originalPath);
+        } catch (unlinkErr) {
+          console.error('Failed to delete original uploaded avatar after WebP conversion:', unlinkErr);
         }
       }
-      // Кінець логіки обробки аватара
-
-      // Перевіряємо, чи є що оновлювати (включаючи пароль)
-      if (Object.keys(userDataToUpdate).length > 0 || userDataToUpdate.password) { // Додано userDataToUpdate.password для випадку, коли змінюється тільки пароль
+      // 6. Оновлення користувача в БД (тільки якщо є зміни)
+      if (Object.keys(userDataToUpdate).length > 0 || userDataToUpdate.password) {
         await User.updateUser(req.session.user.id, userDataToUpdate);
       }
-      
+      // 7. Видалення старого аватара (якщо змінився)
       if (userDataToUpdate.profile_image_url && 
           oldAvatarPathFromDB && 
           oldAvatarPathFromDB !== userDataToUpdate.profile_image_url && 
           oldAvatarPathFromDB !== '/images/default-avatar.png') {
         const fullOldPath = path.join(__dirname, '..', 'public', oldAvatarPathFromDB);
+        // FIX Не використовуйте fs.existsSync у продакшені — краще fsp.access
         if (fs.existsSync(fullOldPath)) {
           try {
             await fsp.unlink(fullOldPath);
@@ -171,7 +162,7 @@ const updateProfile = [
           }
         }
       }
-      
+      // 8. Оновлення сесії (щоб зміни відобразились одразу)
       if (username && req.session.user.username !== username) {
         req.session.user.username = username;
       }
@@ -183,6 +174,7 @@ const updateProfile = [
       res.redirect('/profile');
 
     } catch (error) {
+      // 9. Якщо сталася помилка — видаляємо новий аватар, якщо він був створений
       console.error('Error updating profile in controller:', error);
       
       if (newAvatarFileToDeleteOnError && fs.existsSync(newAvatarFileToDeleteOnError)) {
