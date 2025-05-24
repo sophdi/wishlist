@@ -1,73 +1,69 @@
+/* eslint-disable no-console */
+//app.js
 require('dotenv').config();
+
 const express = require('express');
-const session = require('express-session');
-const flash = require('connect-flash');
 const path = require('path');
+const flash = require('connect-flash');
+const sessionMiddleware = require('./config/session');
 const authRoutes = require('./routes/authRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const wishRoutes = require('./routes/wishRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const errorHandler = require('./middleware/errorHandler');
-const { requireAuth, requireGuest, checkAuth } = require('./middleware/authMiddleware');
+const { requireAuth, checkAuth } = require('./middleware/authMiddleware');
 
 const app = express();
 
-// View engine setup
+// Налаштування EJS та директорії з шаблонами
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Basic middleware
+// Основні middleware
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Session and flash setup
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000,
-    sameSite: 'lax'
-  },
-  name: 'sessionId'
-}));
+app.use(sessionMiddleware);
 app.use(flash());
 
-// Global variables
+// Глобальні змінні для шаблонів
 app.use((req, res, next) => {
-  const successMessages = req.flash('success');
-  const errorMessages = req.flash('error');
-  //console.log('FLASH SUCCESS (global middleware):', successMessages); // Додай це
-  //console.log('FLASH ERROR (global middleware):', errorMessages);   // Додай це
-  res.locals.success = successMessages;
-  res.locals.error = errorMessages;
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
   res.locals.user = req.session?.user || null;
   next();
 });
 
-// Routes
-app.use(checkAuth); // Apply authentication check to all routes
+// Перевірка автентифікації для захищених маршрутів
+app.use(checkAuth);
 
-// Public routes
-app.get('/', (req, res) => res.render('index'));
-app.get('/dashboard', requireAuth, (req, res) => res.render('dashboard'));
+// --- Маршрути ---
 
-// Auth routes
-app.use('/auth', authRoutes);
+app.get('/', (req, res) => res.render('index')); // Головна сторінка
 
-// Protected routes
+app.use('/auth', authRoutes); // Автентифікація
+
+// Захищені маршрути
 app.use('/wishlists', requireAuth, wishlistRoutes);
-app.use('/', requireAuth, profileRoutes);
+app.use('/wishlists', requireAuth, wishRoutes);
+app.use('/profile', requireAuth, profileRoutes);
 
-// Error handling
-app.use(errorHandler);
-
-// Start server
+// Запуск сервера
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Сервер запущено за адресою http://localhost:${PORT}`);
 }).on('error', (err) => {
-  console.error('Server failed to start:', err);
+  console.error('Не вдалося запустити сервер:', err);
   process.exit(1);
 });
+
+// 404 сторінка
+app.use((req, res) => {
+  res.status(404).render('404', {
+    url: req.originalUrl,
+    message: 'Сторінку не знайдено'
+  });
+});
+
+// Глобальний обробник помилок
+app.use(errorHandler);
