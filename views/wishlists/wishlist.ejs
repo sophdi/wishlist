@@ -1,104 +1,88 @@
 <!-- views/wishlists/wishlist.ejs -->
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
   <%- include('../partials/head') %>
 </head>
+
 <body class="bg-gray-50 min-h-screen flex flex-col">
   <%- include('../partials/navbar') %>
-  <main class="max-w-7xl mx-auto px-4 py-8 pt-20 flex-grow">
+  <main class="max-w-5xl w-full mx-auto px-4 py-8 pt-8 flex-grow">
     <%- include('../partials/alerts') %>
-    
+
     <!-- Header -->
     <div class="mb-8">
       <h1 class="text-2xl font-semibold text-gray-900 mb-6">Мої вішлісти</h1>
-      
+
       <!-- Search and Actions -->
       <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
         <!-- Search -->
         <div class="relative flex-1 max-w-md">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <input
-            type="text"
-            placeholder="Пошук вішлістів..."
+          <input type="text" placeholder="Пошук по вішлістам"
             class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
+            data-search="wishlists" data-target="#wishlistsGrid">
         </div>
-        
-        <!-- Sort and Create -->
-        <div class="flex gap-3">
-          <select class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-            <option>Останні</option>
-            <option>За назвою</option>
-            <option>За кількістю</option>
-          </select>
-          
-          <button onclick="openCreateModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm whitespace-nowrap">
-            Створити вішліст
-          </button>
-        </div>
+
+        <!-- Create Button -->
+        <button onclick="openCreateModal()"
+          class="border border-purple-600 text-purple-600 hover:bg-purple-50 hover:border-purple-700 hover:text-purple-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm whitespace-nowrap bg-white">
+          Створити вішліст
+        </button>
       </div>
     </div>
 
     <!-- Wishlists Grid -->
     <% if (wishlists.length > 0) { %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Create Card -->
-      <div>
-        <button onclick="openCreateModal()" class="w-full h-56 bg-white border-2 border-dashed border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 flex flex-col items-center justify-center text-gray-600 hover:text-purple-600 group">
-          <div class="w-16 h-16 bg-gray-100 group-hover:bg-purple-100 rounded-full flex items-center justify-center mb-4 transition-colors">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+    <div id="wishlistsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Create Card (повернуто класичний вигляд без градієнта і з фіолетовою рамкою) -->
+      <div
+        class="w-full h-32 bg-white border-2 border-dashed border-purple-200 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-purple-400 hover:bg-purple-50 transition-all duration-200">
+        <button onclick="openCreateModal()"
+          class="flex flex-col items-center justify-center w-full h-full text-purple-600 hover:text-purple-700 focus:outline-none">
+          <div class="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center mb-2 shadow">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
-          <div class="text-center">
-            <div class="font-semibold text-lg mb-1">Створити новий вішліст</div>
-            <div class="text-sm text-gray-500">Додайте свої мрії та бажання</div>
-          </div>
+          <span class="font-semibold text-base">Створити новий вішліст</span>
         </button>
       </div>
 
       <!-- Wishlist Cards -->
       <% wishlists.forEach(wishlist => { %>
-      <div>
-        <a href="/wishlists/<%= wishlist.id %>" class="block group">
-          <div class="bg-white rounded-xl border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all duration-200 h-56 p-8 relative cursor-pointer">
-            <!-- Action Buttons -->
-            <div class="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onclick="event.preventDefault(); event.stopPropagation();" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                </svg>
-              </button>
-              <button onclick="event.preventDefault(); event.stopPropagation();" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- Content -->
-            <div class="h-full flex flex-col justify-between pr-20">
-              <!-- Title -->
-              <div>
-                <h3 class="text-2xl font-bold text-gray-900 line-clamp-4 leading-relaxed mb-4"><%= wishlist.title %></h3>
+      <div class="relative group">
+        <!-- Вся картка як посилання -->
+        <a href="/wishlists/<%= wishlist.id %>" class="block group searchable-item">
+          <div
+            class="w-full h-32 bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-200 p-4 relative cursor-pointer">
+            <div class="flex flex-col justify-between h-full">
+              <!-- Top: Назва -->
+              <div class="flex items-start justify-between">
+                <h3 class="text-base font-semibold text-gray-900 line-clamp-2 flex-1 mb-0"><%= wishlist.title %></h3>
               </div>
-              
-              <!-- Bottom Section -->
-              <div class="flex items-center justify-between">
-                <div class="text-gray-500">
-                  <%= wishlist.items_count || 0 %> <%= (wishlist.items_count || 0) === 1 ? 'бажання' : 'бажань' %>
-                </div>
-                <div class="text-purple-600 font-medium group-hover:text-purple-700 transition-colors flex items-center gap-2">
-                  <span>Переглянути</span>
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                  </svg>
-                </div>
+              <!-- Bottom: Бейдж і дата -->
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-sm text-purple-600 font-medium">
+                  <%= wishlist.wishes_count || 0 %> <%= (wishlist.wishes_count === 1) ? 'бажання' : 'бажань' %>
+                </span>
+                <span class="text-xs text-gray-400">
+                  <% 
+                        const created = new Date(wishlist.created_at);
+                        const now = new Date();
+                        created.setHours(0,0,0,0);
+                        now.setHours(0,0,0,0);
+                        let diffDays = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+                        if (diffDays < 0) diffDays = 0;
+                      %>
+                  <%= diffDays === 0 ? 'сьогодні' : diffDays === 1 ? '1 день тому' : `${diffDays} днів тому` %>
+                </span>
               </div>
             </div>
           </div>
@@ -112,14 +96,15 @@
     <div class="text-center py-20">
       <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-        </svg>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
       </div>
       <h2 class="text-xl font-semibold text-gray-900 mb-3">Створіть свій перший вішліст</h2>
       <p class="text-gray-600 mb-8 max-w-md mx-auto">
         Почніть збирати свої мрії та бажання в організованих списках
       </p>
-      <button onclick="openCreateModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+      <button onclick="openCreateModal()"
+        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
         Створити вішліст
       </button>
     </div>
@@ -129,32 +114,59 @@
   <!-- Підключення модалок для вішлістів -->
   <%- include('../partials/modals/wishlist-modals') %>
   <%- include('../partials/footer') %>
-  
+
   <script src="/js/modal-handlers.js"></script>
-  
+  <script src="js/wishlist-view.js"></script>
+
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Search functionality
-      const searchInput = document.querySelector('input[placeholder="Пошук вішлістів..."]');
-      const filterButtons = document.querySelectorAll('[data-filter]');
-      const sortSelect = document.querySelector('select');
-      
-      // Search
-      if (searchInput) {
-        searchInput.addEventListener('input', function() {
-          const searchTerm = this.value.toLowerCase();
-          // TODO: Filter wishlists by search term
-          console.log('Search:', searchTerm);
-        });
-      }
-      
-      // Sort
-      if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-          // TODO: Sort wishlists
-          console.log('Sort by:', this.value);
-        });
-      }
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.querySelector('[data-search="wishlists"]');
+      const grid = document.querySelector(searchInput.dataset.target);
+
+      let searchTimeout;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        const searchTerm = this.value.trim();
+
+        searchTimeout = setTimeout(async () => {
+          if (searchTerm.length < 2) {
+            // Якщо запит короткий — показати всі
+            document.querySelectorAll('.searchable-item').forEach(item => item.style.display = '');
+            return;
+          }
+          try {
+            const res = await fetch(`/wishlists/search?q=${encodeURIComponent(searchTerm)}`, {
+              headers: { 'Accept': 'application/json' }
+            });
+            const data = await res.json();
+            if (data.success) {
+              grid.innerHTML = data.wishlists.map(wishlist => `
+                <div class="relative group">
+                  <a href="/wishlists/${wishlist.id}" class="block group searchable-item">
+                    <div class="w-full h-32 bg-white rounded-xl border border-gray-100 hover:shadow-lg transition-all duration-200 p-4 relative cursor-pointer">
+                      <div class="flex flex-col justify-between h-full">
+                        <div class="flex items-start justify-between">
+                          <h3 class="text-base font-semibold text-gray-900 line-clamp-2 flex-1 mb-0">${wishlist.title}</h3>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                          <span class="text-sm text-purple-600 font-medium">
+                            ${wishlist.wishes_count || 0} ${(wishlist.wishes_count === 1) ? 'бажання' : 'бажань'}
+                          </span>
+                          <span class="text-xs text-gray-400">
+                            ${new Date(wishlist.created_at).toLocaleDateString('uk-UA')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              `).join('');
+            }
+          } catch (e) {
+            console.error('Search error:', e);
+          }
+        }, 300);
+      });
     });
   </script>
 
@@ -167,4 +179,5 @@
     }
   </style>
 </body>
+
 </html>

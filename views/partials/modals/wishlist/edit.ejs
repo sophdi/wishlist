@@ -16,26 +16,26 @@
         <label for="title" class="block text-gray-700 font-medium mb-2">
           Назва
         </label>
-        <input type="text" 
-               id="title" 
-               name="title" 
-               value="<%= wishlist.title %>"
-               class="w-full border border-gray-300 rounded-lg py-3 px-4" 
-               required />
+        <input type="text" id="title" name="title" value="<%= wishlist.title %>"
+          class="w-full border border-gray-300 rounded-lg py-3 px-4" required />
       </div>
 
       <div>
         <label for="description" class="block text-gray-700 font-medium mb-2">
           Опис (необов'язково)
         </label>
-        <textarea id="description" 
-                  name="description"
-                  class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none" 
-                  rows="3"><%= wishlist.description || '' %></textarea>
+        <textarea id="description" name="description"
+          class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none"
+          rows="3"><%= wishlist.description || '' %></textarea>
       </div>
 
-      <div class="flex gap-4">
-        <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">
+      <div class="flex justify-between gap-4 mt-8">
+        <button type="button" onclick="openDeleteConfirmModal();"
+          class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-5 rounded-lg transition">
+          Видалити
+        </button>
+        <button type="submit"
+          class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition">
           Зберегти
         </button>
       </div>

@@ -12,14 +12,15 @@
       Ви впевнені, що хочете видалити це бажання? Цю дію неможливо буде
       скасувати.
     </p>
-
     <div class="flex gap-4">
       <button onclick="closeConfirmDeleteWishModal()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">
         Скасувати
       </button>
-      <a id="confirmDeleteWishBtn" href="" class="flex-1 bg-red-500 text-white py-3 rounded-lg">
-        Видалити
-      </a>
+      <form id="confirmDeleteWishForm" method="POST" action="" class="flex-1">
+        <button type="submit" class="w-full bg-red-500 text-white py-3 rounded-lg">
+          Видалити
+        </button>
+      </form>
     </div>
   </div>
 </div>

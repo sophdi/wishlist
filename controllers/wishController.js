@@ -1,5 +1,6 @@
 // controllers/wishController.js
 const Wish = require('../models/Wish');
+const Wishlist = require('../models/Wishlist'); // Додано для роботи з моделлю Wishlist
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
@@ -268,6 +269,26 @@ class WishController {
       }
       req.flash('error', 'Помилка при видаленні бажання');
       res.redirect(`/wishlists/${wishlistId}`);
+    }
+  }
+
+  // Показати деталі бажання
+  static async showWishDetail(req, res) {
+    try {
+      const wishlistId = parseInt(req.params.wishlistId, 10);
+      const wishId = parseInt(req.params.wishId, 10);
+
+      const wish = await Wish.findById(wishId, wishlistId);
+      const wishlist = await Wishlist.findById(wishlistId, req.session.user.id); // додати цей рядок
+
+      if (!wish) {
+        return res.status(404).render('404', { message: 'Бажання не знайдено' });
+      }
+
+      res.render('wishlists/wish-detail', { wish, wishlist }); // додати wishlist
+    } catch (error) {
+      console.error('Error fetching wish detail:', error);
+      res.status(500).render('500', { message: 'Помилка сервера' });
     }
   }
 }

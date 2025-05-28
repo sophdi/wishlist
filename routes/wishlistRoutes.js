@@ -23,8 +23,9 @@ const validateWishlist = [
 // CRUD для вішлістів
 router.get('/', requireAuth, wishlistController.showWishlists);
 router.get('/search', requireAuth, wishlistController.searchWishlists);
-router.get('/:id', requireAuth, wishlistController.showWishlistWithWishes);
+router.get('/:id', requireAuth, wishlistController.getWishlistDetail);
 router.get('/:id/wishes/search', requireAuth, wishlistController.searchWishes);
+router.get('/:id/wishes/json', requireAuth, wishlistController.getWishesJson);
 router.post('/create', requireAuth, validateWishlist, wishlistController.create);
 router.post('/:id/edit', requireAuth, validateWishlist, wishlistController.update);
 router.post('/:id/delete', requireAuth, wishlistController.delete); 

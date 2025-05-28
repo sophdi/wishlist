@@ -20,18 +20,6 @@ const validateWish = [
     .optional({ nullable: true })
     .isFloat({ min: 0 })
     .withMessage('Ціна має бути додатним числом'),
-  body('currency')
-    .optional({ nullable: true })
-    .isLength({ min: 3, max: 3 })
-    .withMessage('Неправильний формат валюти'),
-  body('priority')
-    .optional({ nullable: true })
-    .isIn(['low', 'medium', 'high'])
-    .withMessage('Неправильний пріоритет'),
-  body('status')
-    .optional({ nullable: true })
-    .isIn(['active', 'completed', 'archived'])
-    .withMessage('Неправильний статус'),
   body('link')
     .optional({ nullable: true })
     .isURL()
@@ -61,10 +49,16 @@ router.patch(
   WishController.updateWishStatus
 );
 
-router.delete(
-  '/:wishlistId/wishes/:wishId',
+router.post(
+  '/:wishlistId/wishes/:wishId/delete',
   requireAuth,
   WishController.deleteWish
+);
+
+router.get(
+  '/:wishlistId/wishes/:wishId',
+  requireAuth,
+  WishController.showWishDetail
 );
 
 module.exports = router;

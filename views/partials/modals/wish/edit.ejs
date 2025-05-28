@@ -1,62 +1,66 @@
 <% var wish = typeof wish !== 'undefined' ? wish : null; %>
 <!-- Модальне вікно редагування бажання -->
 <div id="editWishModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0" style="background-color: rgba(0,0,0,0.4);"></div>
-  <div class="bg-white rounded-xl w-full max-w-sm relative z-10">
+  <div class="absolute inset-0 bg-black opacity-40"></div>
+  <div class="bg-white rounded-xl w-full max-w-2xl relative z-10"> <!-- Змінено max-w-sm на max-w-2xl -->
     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
       <h2 class="text-lg font-semibold text-gray-900">Редагувати бажання</h2>
-      <button onclick="closeEditWishModal()" class="text-gray-500 hover:text-gray-900">
+      <button type="button" onclick="closeEditWishModal()" class="text-gray-500 hover:text-gray-900">
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <form action="/wishlists/<%= typeof wishlist !== 'undefined' && wishlist ? wishlist.id : '' %>/wishes/edit/<%= typeof wish !== 'undefined' && wish ? wish.id : '' %>" method="POST" class="p-4 space-y-4"
-      enctype="multipart/form-data" id="editWishForm">
+    <form
+      action="/wishlists/<%= typeof wishlist !== 'undefined' && wishlist ? wishlist.id : '' %>/wishes/edit/<%= wish && wish.id ? wish.id : '' %>"
+      method="POST" class="p-4 space-y-4" enctype="multipart/form-data" id="editWishForm">
+      <!-- Додаємо hidden-поле для існуючого зображення -->
+      <% if (wish && wish.image) { %>
+      <input type="hidden" name="existingImage" value="<%= wish.image %>">
+      <% } %>
       <!-- Зображення -->
-      <div class="mb-4">
+      <div>
         <label class="block text-sm text-gray-700 mb-2">Зображення</label>
         <div class="relative h-[140px]">
           <input type="file" name="image" id="editWishImage" accept="image/*" class="hidden">
-          <label for="editWishImage" class="block h-full">
+          <label for="editWishImage" class="block h-full cursor-pointer">
             <div
-              class="bg-white rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center h-full cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all">
-              <div id="editImagePreviewContainer" class="<%= wish && wish.image ? '' : 'hidden' %> w-full h-full rounded-lg overflow-hidden">
+              class="bg-white rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center h-full hover:border-primary-500 hover:bg-primary-50 transition-all">
+              <div id="editImagePreviewContainer"
+                class="<%= wish && wish.image ? '' : 'hidden' %> w-full h-full rounded-lg overflow-hidden">
                 <% if (wish && wish.image) { %>
-                  <img id="editImagePreview" src="<%= wish.image %>" class="w-full h-full object-cover">
+                <img id="editImagePreview" src="<%= wish.image %>" class="w-full h-full object-cover">
                 <% } else { %>
-                  <img id="editImagePreview" class="w-full h-full object-cover">
+                <img id="editImagePreview" class="w-full h-full object-cover hidden">
                 <% } %>
               </div>
-              <div id="editUploadPlaceholder" class="flex flex-col items-center justify-center <%= wish && wish.image ? 'hidden' : '' %>">
+              <div id="uploadPlaceholder"
+                class="flex flex-col items-center justify-center <%= wish && wish.image ? 'hidden' : '' %>">
                 <div class="flex items-center gap-2 text-gray-400 mb-2">
-                  <i class="fas fa-image text-xl"></i>
-                  <i class="fas fa-plus text-sm"></i>
+                  <i class="fas fa-image text-3xl"></i>
                 </div>
-                <p class="text-sm font-medium text-gray-500 mb-2">Додати/змінити зображення</p>
-                <button type="button"
-                  class="px-4 py-1.5 bg-gray-100 rounded-full text-xs text-gray-600 hover:bg-gray-200 transition-colors">
-                  Обрати файл
-                </button>
+                <p class="text-sm font-medium text-gray-500 mb-2">Завантажте зображення</p>
+                <p class="text-xs font-normal text-gray-500 mb-2">PNG, JPG, GIF до 5MB</p>
               </div>
             </div>
           </label>
         </div>
       </div>
 
-      <!-- Основна інформація -->
+      <!-- Назва -->
       <div>
         <label for="editWishTitle" class="block text-sm text-gray-700 mb-1">Назва</label>
         <input type="text" id="editWishTitle" name="title"
-          class="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm"
-          placeholder="Введіть назву бажання"
+          class="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm" placeholder="Введіть назву бажання"
           value="<%= wish && wish.title ? wish.title : '' %>" required>
       </div>
 
+      <!-- Опис -->
       <div>
         <label for="editWishDescription" class="block text-sm text-gray-700 mb-1">Опис</label>
         <div class="relative">
           <textarea id="editWishDescription" name="description"
             class="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm resize-none"
-            placeholder="Опишіть ваше бажання..." rows="2" maxlength="1000"><%= wish && wish.description ? wish.description : '' %></textarea>
+            placeholder="Опишіть ваше бажання..." rows="2"
+            maxlength="1000"><%= wish && wish.description ? wish.description : '' %></textarea>
           <div class="absolute right-2 bottom-2 text-xs text-gray-400">
             <span id="editCharCount"><%= wish && wish.description ? wish.description.length : 0 %></span>/1000
           </div>
@@ -69,11 +73,11 @@
           <label for="editWishPrice" class="block text-sm text-gray-700 mb-1">Ціна</label>
           <div class="flex">
             <input type="text" id="editWishPrice" name="price"
-              class="w-2/3 border border-gray-300 rounded-l-lg py-2 px-3 text-sm"
-              placeholder="Введіть ціну"
-              pattern="[1-9][0-9]*" inputmode="numeric"
+              class="w-2/3 border border-gray-300 rounded-l-lg py-2 px-3 text-sm" placeholder="Введіть ціну"
+              pattern="^[1-9][0-9]*(\.[0-9]{1,2})?$" inputmode="decimal"
               value="<%= wish && wish.price ? wish.price : '' %>">
-            <select name="currency" class="w-1/3 border-l-0 border border-gray-300 rounded-r-lg py-2 px-2 text-sm">
+            <select id="editWishCurrency" name="currency"
+              class="w-1/3 border-l-0 border border-gray-300 rounded-r-lg py-2 px-2 text-sm">
               <option value="UAH" <%= wish && wish.currency === 'UAH' ? 'selected' : '' %>>₴</option>
               <option value="USD" <%= wish && wish.currency === 'USD' ? 'selected' : '' %>>$</option>
               <option value="EUR" <%= wish && wish.currency === 'EUR' ? 'selected' : '' %>>€</option>
@@ -91,11 +95,11 @@
         </div>
       </div>
 
+      <!-- Посилання -->
       <div>
         <label for="editWishLink" class="block text-sm text-gray-700 mb-1">Посилання</label>
         <input type="url" id="editWishLink" name="link"
-          class="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm"
-          placeholder="Вставте посилання на товар"
+          class="w-full border border-gray-300 rounded-lg py-2 px-3 text-sm" placeholder="Вставте посилання на товар"
           value="<%= wish && wish.link ? wish.link : '' %>">
       </div>
 
@@ -114,20 +118,11 @@
 </div>
 
 <script>
-  // Лічильник символів для textarea
-  const editDesc = document.getElementById('editWishDescription');
-  const editCharCount = document.getElementById('editCharCount');
-  if (editDesc && editCharCount) {
-    editDesc.addEventListener('input', function () {
-      editCharCount.textContent = editDesc.value.length;
-    });
-  }
-
   // Прев'ю зображення
   const editWishImage = document.getElementById('editWishImage');
   const editImagePreview = document.getElementById('editImagePreview');
   const editImagePreviewContainer = document.getElementById('editImagePreviewContainer');
-  const editUploadPlaceholder = document.getElementById('editUploadPlaceholder');
+  const uploadPlaceholder = document.getElementById('uploadPlaceholder');
   if (editWishImage) {
     editWishImage.addEventListener('change', function (e) {
       const file = e.target.files[0];
@@ -136,10 +131,19 @@
         reader.onload = function (ev) {
           editImagePreview.src = ev.target.result;
           editImagePreviewContainer.classList.remove('hidden');
-          editUploadPlaceholder.classList.add('hidden');
+          uploadPlaceholder.classList.add('hidden');
+          editImagePreview.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
       }
+    });
+  }
+  // Лічильник символів для textarea
+  const editDesc = document.getElementById('editWishDescription');
+  const editCharCount = document.getElementById('editCharCount');
+  if (editDesc && editCharCount) {
+    editDesc.addEventListener('input', function () {
+      editCharCount.textContent = editDesc.value.length;
     });
   }
 </script>

@@ -131,6 +131,72 @@ document.addEventListener('DOMContentLoaded', function () {
             charCount.textContent = '0';
         });
     }
+
+    // ===== Обробка форми редагування бажання =====
+    const editWishForm = document.getElementById('editWishForm');
+    if (editWishForm) {
+        editWishForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // --- Клієнтська валідація назви бажання ---
+            const title = document.getElementById('editWishTitle').value.trim();
+            if (!title) {
+                alert('Будь ласка, введіть назву бажання');
+                return;
+            }
+
+            // --- Показати індикатор завантаження на кнопці ---
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Збереження...';
+
+            try {
+                // --- Формуємо FormData для відправки файлів та інших даних ---
+                const formData = new FormData(this);
+
+                // --- Відправляємо POST-запит на сервер ---
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // --- Успішне редагування бажання ---
+                    showNotification('success', result.message || 'Бажання успішно оновлено');
+
+                    // --- Закриваємо модальне вікно (глобальна функція) ---
+                    window.closeEditWishModal();
+
+                    // --- Оновлюємо сторінку через 0.5 секунди ---
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    // --- Відображаємо помилки, якщо вони є ---
+                    if (result.errors && result.errors.length > 0) {
+                        const errorMessages = result.errors.map(err => err.msg).join('\n');
+                        alert(errorMessages);
+                    } else {
+                        alert('Помилка при оновленні бажання');
+                    }
+                }
+            } catch (error) {
+                // --- Обробка неочікуваних помилок ---
+                console.error('Error:', error);
+                alert('Помилка при оновленні бажання. Спробуйте ще раз.');
+            } finally {
+                // --- Відновлюємо стан кнопки ---
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+    }
 });
 
 // ===== Функція для показу сповіщень користувачу =====

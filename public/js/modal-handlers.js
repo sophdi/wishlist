@@ -66,36 +66,46 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   window.openDeleteWishModal = function(deleteUrl) {
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    if (confirmDeleteBtn) confirmDeleteBtn.href = deleteUrl;
-    openModal('deleteWishModal');
+    const confirmDeleteForm = document.getElementById('confirmDeleteWishForm');
+    if (confirmDeleteForm) {
+      // Очікуємо deleteUrl типу /wishlists/:wishlistId/wishes/:wishId
+      confirmDeleteForm.action = deleteUrl;
+    }
+    openModal('confirmDeleteWishModal');
   };
 
   window.closeDeleteWishModal = function() {
     closeModal('deleteWishModal');
   };
 
-  window.openEditWishModal = function(id, title, description, priority, targetDate, link) {
+  window.openEditWishModal = function(
+    id,
+    title,
+    description,
+    price,
+    currency,
+    priority,
+    link
+  ) {
     const editForm = document.getElementById('editWishForm');
     if (editForm) {
       // Оновлюємо action форми на актуальний id
-      const currentAction = editForm.action;
-      const newAction = currentAction.replace(/\/edit\/\d+/, `/edit/${id}`);
-      editForm.action = newAction;
-      
-      // Заповнюємо поля форми
-      document.getElementById('wishTitle').value = title || '';
-      document.getElementById('wishDescription').value = description || '';
-      
-      const priorityField = document.getElementById('wishPriority');
-      const dateField = document.getElementById('wishTargetDate');
-      const linkField = document.getElementById('wishLink');
-      
-      if (priorityField && priority) priorityField.value = priority;
-      if (dateField && targetDate) dateField.value = targetDate;
-      if (linkField && link) linkField.value = link;
+      const actionRegex = /\/wishes\/edit\/\d+/;
+      editForm.action = editForm.action.replace(actionRegex, `/wishes/edit/${id}`);
+
+      // Безпечне заповнення полів
+      const setValue = (selector, value) => {
+        const el = document.getElementById(selector);
+        if (el) el.value = value || '';
+      };
+      setValue('editWishTitle', title);
+      setValue('editWishDescription', description);
+      setValue('editWishPrice', price);
+      setValue('editWishCurrency', currency || 'UAH');
+      setValue('editWishPriority', priority || 'medium');
+      setValue('editWishLink', link);
     }
-    
+
     openModal('editWishModal');
   };
 

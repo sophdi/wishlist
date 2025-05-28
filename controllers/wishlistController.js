@@ -39,10 +39,10 @@ class WishlistController {
     const wishlistId = parseInt(req.params.id, 10);
 
     if (isNaN(wishlistId)) {
-      // Некоректний ID — повертаємо помилку
       return res.render('wishlists/wishlist-detail', {
         wishlist: null,
         wishes: [],
+        sort: 'created_desc', // додати!
         errors: [{ msg: 'Невірний ID вішліста' }]
       });
     }
@@ -51,10 +51,10 @@ class WishlistController {
       const wishlist = await Wishlist.findById(wishlistId, req.session.user.id);
 
       if (!wishlist) {
-        // Вішліст не знайдено або не належить користувачу
         return res.render('wishlists/wishlist-detail', {
           wishlist: null,
           wishes: [],
+          sort: 'created_desc', // додати!
           errors: [{ msg: 'Вішліст не знайдено' }]
         });
       }
@@ -64,6 +64,7 @@ class WishlistController {
       res.render('wishlists/wishlist-detail', {
         wishlist,
         wishes,
+        sort: 'created_desc', // додати!
         errors: [],
         success: req.flash('success')
       });
@@ -72,6 +73,7 @@ class WishlistController {
       res.render('wishlists/wishlist-detail', {
         wishlist: null,
         wishes: [],
+        sort: 'created_desc', // додати!
         errors: [{ msg: 'Помилка завантаження вішліста' }]
       });
     }
@@ -183,40 +185,13 @@ class WishlistController {
    * Пошук по вішлістах
    */
   static async searchWishlists(req, res) {
+    const userId = req.user.id;
+    const q = req.query.q || '';
     try {
-      const searchTerm = req.query.q || '';
-      const wishlists = await Wishlist.search(req.session.user.id, searchTerm);
-      
-      // Якщо AJAX запит
-      if (req.xhr || req.headers.accept.includes('application/json')) {
-        return res.json({
-          success: true,
-          wishlists: wishlists
-        });
-      }
-
-      // Звичайний HTTP запит
-      res.render('wishlists/index', {
-        wishlists: wishlists,
-        searchTerm: searchTerm,
-        errors: []
-      });
+      const wishlists = await Wishlist.search(userId, q);
+      res.json({ success: true, wishlists });
     } catch (error) {
-      console.error('Error searching wishlists:', error);
-      const errorMessage = 'Помилка при пошуку вішлістів';
-      
-      if (req.xhr || req.headers.accept.includes('application/json')) {
-        return res.status(500).json({
-          success: false,
-          error: errorMessage
-        });
-      }
-      
-      res.render('wishlists/index', {
-        wishlists: [],
-        searchTerm: req.query.q || '',
-        errors: [{ msg: errorMessage }]
-      });
+      res.status(500).json({ success: false, message: 'Search error' });
     }
   }
 
@@ -247,6 +222,84 @@ class WishlistController {
         success: false,
         error: 'Помилка пошуку'
       });
+    }
+  }
+
+  /**
+   * Деталі вішліста з можливістю сортування бажань
+   */
+  static async getWishlistDetail(req, res) {
+    const wishlistId = req.params.id;
+    const sort = req.query.sort || 'created_desc';
+
+    let orderBy;
+    switch (sort) {
+      case 'title_asc':
+        orderBy = 'title ASC';
+        break;
+      case 'price_asc':
+        orderBy = 'price ASC';
+        break;
+      case 'price_desc':
+        orderBy = 'price DESC';
+        break;
+      case 'created_desc':
+      default:
+        orderBy = 'created_at DESC';
+        break;
+    }
+
+    try {
+      const wishlist = await Wishlist.findById(wishlistId, req.session.user.id);
+
+      if (!wishlist) {
+        return res.render('wishlists/wishlist-detail', {
+          wishlist: null,
+          wishes: [],
+          sort: sort || 'created_desc',
+          errors: [{ msg: 'Вішліст не знайдено' }]
+        });
+      }
+
+      const wishes = await Wish.findByWishlistId(wishlistId, orderBy);
+
+      res.render('wishlists/wishlist-detail', {
+        wishlist,
+        wishes,
+        sort: sort || 'created_desc',
+        errors: [],
+        success: req.flash('success')
+      });
+    } catch (error) {
+      console.error('Error fetching wishlist details:', error);
+      res.render('wishlists/wishlist-detail', {
+        wishlist: null,
+        wishes: [],
+        sort: sort || 'created_desc',
+        errors: [{ msg: 'Помилка завантаження вішліста' }]
+      });
+    }
+  }
+
+  /**
+   * Повертає бажання у форматі JSON з можливістю сортування
+   */
+  static async getWishesJson(req, res) {
+    const wishlistId = req.params.id;
+    const sort = req.query.sort || 'created_desc';
+    let orderBy;
+    switch (sort) {
+      case 'title_asc': orderBy = 'title ASC'; break;
+      case 'price_asc': orderBy = 'price ASC'; break;
+      case 'price_desc': orderBy = 'price DESC'; break;
+      case 'created_desc':
+      default: orderBy = 'created_at DESC'; break;
+    }
+    try {
+      const wishes = await Wish.findByWishlistId(wishlistId, orderBy);
+      res.json({ success: true, wishes });
+    } catch (error) {
+      res.status(500).json({ success: false, error: 'Помилка завантаження' });
     }
   }
 }

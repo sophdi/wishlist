@@ -14,7 +14,8 @@ class Wish {
   }
 
   // Повертає всі бажання для заданого wishlistId, відсортовані за датою створення (новіші першими)
-  static async findByWishlistId(wishlistId) {
+  static async findByWishlistId(wishlistId, orderBy = 'created_at DESC') {
+    // Захист від SQL-інʼєкцій: приймайте orderBy тільки з білого списку у контролері!
     try {
       const [rows] = await pool.execute(`
         SELECT 
@@ -31,9 +32,8 @@ class Wish {
           updated_at
         FROM wishes 
         WHERE wishlist_id = ?
-        ORDER BY created_at DESC
+        ORDER BY ${orderBy}
       `, [wishlistId]);
-
       return rows;
     } catch (error) {
       console.error('Error finding wishes:', error);

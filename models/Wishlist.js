@@ -125,6 +125,18 @@ class Wishlist {
       throw error;
     }
   }
+
+  // Повертає вішлісти за userId та запитом
+  static async findByUserAndQuery(userId, q) {
+    const sql = `
+      SELECT id, title, wishes_count, created_at
+      FROM wishlists
+      WHERE user_id = ? AND title LIKE ?
+      ORDER BY created_at DESC
+    `;
+    const [rows] = await db.query(sql, [userId, `%${q}%`]);
+    return rows;
+  }
 }
 
 module.exports = Wishlist;

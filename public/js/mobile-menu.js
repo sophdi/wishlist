@@ -16,13 +16,27 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Закрити мобільне меню
-  if (mobileMenuClose) {
-    mobileMenuClose.addEventListener('click', () => {
-      mobileMenu.classList.add('translate-x-full');
-      document.body.style.overflow = ''; // Відновлюємо прокрутку сторінки
-      mobileMenuToggle.setAttribute('aria-expanded', 'false');
-    });
+  function closeMobileMenu() {
+    mobileMenu.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+    mobileMenuToggle.setAttribute('aria-expanded', 'false');
   }
+
+  if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
+  }
+
+  // Додаємо закриття по кліку поза меню (якщо потрібно)
+  document.addEventListener('click', (event) => {
+    if (
+      mobileMenu &&
+      !mobileMenu.classList.contains('translate-x-full') &&
+      !mobileMenu.contains(event.target) &&
+      event.target !== mobileMenuToggle
+    ) {
+      closeMobileMenu();
+    }
+  });
 
   // Випадаюче меню користувача
   const userMenuToggle = document.getElementById('user-menu-toggle');
