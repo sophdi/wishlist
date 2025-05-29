@@ -1,15 +1,25 @@
 <body class="bg-gray-50 min-h-screen flex flex-col">
   <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-    <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex items-center justify-between h-16">
         <!-- Logo -->
         <% if (user) { %>
         <a href="/dashboard" class="flex items-center">
-          <span class="text-xl font-semibold text-gray-900">mriia</span>
+          <span class="flex items-center gap-2 text-xl font-semibold text-purple-600">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 shadow-sm">
+              <i class="fa-solid fa-gift text-white text-lg"></i>
+            </span>
+            mriia
+          </span>
         </a>
         <% } else { %>
         <a href="/" class="flex items-center">
-          <span class="text-xl font-semibold text-gray-900">mriia</span>
+          <span class="flex items-center gap-2 text-xl font-semibold text-gray-900">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 shadow-sm">
+              <i class="fa-solid fa-gifts text-white text-lg"></i>
+            </span>
+            mriia
+          </span>
         </a>
         <% } %>
         <!-- Search Bar -->

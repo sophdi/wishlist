@@ -12,6 +12,7 @@ const wishRoutes = require('./routes/wishRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const { requireAuth, checkAuth } = require('./middleware/authMiddleware');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/auth', authRoutes); // Автентифікація
 app.use('/wishlists', requireAuth, wishlistRoutes);
 app.use('/wishlists', requireAuth, wishRoutes);
 app.use('/profile', requireAuth, profileRoutes);
+app.use('/', dashboardRoutes);
 
 // Запуск сервера
 const PORT = process.env.PORT || 3000;

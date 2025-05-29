@@ -1,4 +1,4 @@
 <!--views/partials/modals/wish-modals.ejs -->
 <%- include('wish/create', { wishlist: wishlist }) %>
-<%- include('wish/edit', { wishlist: wishlist, wish: null }) %>
+<%- include('wish/edit', { wishlist: wishlist, wish: { id: '', title: '', description: '', price: '', currency: '', priority: '', link: '', image: '' } }) %>
 <%- include('wish/delete') %>

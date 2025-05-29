@@ -7,23 +7,27 @@ const { requireAuth } = require('../middleware/authMiddleware');
 const { uploadWishPhoto } = require('../middleware/uploadMiddleware');
 const { body } = require('express-validator');
 
-// Валідація бажання
 const validateWish = [
   body('title')
     .trim()
-    .isLength({ min: 1, max: 255 })
-    .withMessage('Назва має бути від 1 до 255 символів'),
+    .notEmpty().withMessage('Назва обовʼязкова')
+    .isLength({ min: 1, max: 255 }).withMessage('Назва має бути від 1 до 255 символів'),
   body('description')
-    .optional({ nullable: true })
-    .trim(),
+    .optional({ checkFalsy: true })
+    .isLength({ max: 1000 }).withMessage('Опис не може перевищувати 1000 символів'),
   body('price')
-    .optional({ nullable: true })
-    .isFloat({ min: 0 })
-    .withMessage('Ціна має бути додатним числом'),
+    .optional({ checkFalsy: true })
+    .isFloat({ min: 0 }).withMessage('Ціна має бути додатнім числом'),
+  body('currency')
+    .optional({ checkFalsy: true })
+    .isIn(['UAH', 'USD', 'EUR']).withMessage('Невірна валюта'),
+  body('priority')
+    .optional({ checkFalsy: true })
+    .isIn(['low', 'medium', 'high']).withMessage('Невірний пріоритет'),
   body('link')
-    .optional({ nullable: true })
-    .isURL()
-    .withMessage('Неправильний формат посилання')
+    .optional({ checkFalsy: true })
+    .isLength({ max: 1024 }).withMessage('Посилання занадто довге')
+    .isURL().withMessage('Невірний формат посилання'),
 ];
 
 // CRUD для бажань

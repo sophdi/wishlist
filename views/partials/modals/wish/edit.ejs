@@ -10,8 +10,11 @@
       </button>
     </div>
     <form
-      action="/wishlists/<%= typeof wishlist !== 'undefined' && wishlist ? wishlist.id : '' %>/wishes/edit/<%= wish && wish.id ? wish.id : '' %>"
-      method="POST" class="p-4 space-y-4" enctype="multipart/form-data" id="editWishForm">
+      action="/wishlists/<%= wishlist.id %>/wishes/<%= wish ? wish.id : '' %>"
+      method="POST"
+      class="p-4 space-y-4"
+      enctype="multipart/form-data"
+      id="editWishForm">
       <!-- Додаємо hidden-поле для існуючого зображення -->
       <% if (wish && wish.image) { %>
       <input type="hidden" name="existingImage" value="<%= wish.image %>">

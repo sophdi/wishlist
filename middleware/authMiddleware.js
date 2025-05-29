@@ -5,6 +5,12 @@
  */
 const requireAuth = (req, res, next) => {
   if (!req.session?.user) {
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.status(401).json({
+        success: false,
+        errors: [{ msg: 'Будь ласка, увійдіть' }]
+      });
+    }
     req.flash('error', 'Будь ласка, увійдіть');
     return res.redirect('/auth/login');
   }

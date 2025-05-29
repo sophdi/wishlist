@@ -8,8 +8,8 @@
   <%- include('../partials/navbar-guest') %>
   
   <div class="w-full max-w-md pt-20">
-    <%- include('../partials/alerts') %>
-    
+    <!-- <%- include('../partials/alerts') %> --> <!-- Більше не потрібно -->
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div class="p-8">
         <!-- Header -->
@@ -95,7 +95,16 @@
     </div>
   </div>
 
+  <script src="/js/notifications.js"></script>
   <script type="module" src="/js/login.js"></script>
   <script type="module" src="/js/validation.js"></script>
+  <script>
+    <% if (error && error.length > 0) { %>
+      showNotification('error', '<%= error[0] %>');
+    <% } %>
+    <% if (success && success.length > 0) { %>
+      showNotification('success', '<%= success[0] %>');
+    <% } %>
+  </script>
 </body>
 </html>

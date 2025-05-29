@@ -2,40 +2,87 @@
 <html lang="uk">
 
 <head>
-  <%- include('./partials/head') %>
+  <%- include('partials/head') %>
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col">
-  <%- include('../partials/navbar') %>
-  <main class="max-w-5xl w-full mx-auto px-4 py-8 pt-8 flex-grow">
-    <%- include('./partials/alerts') %>
+  <%- include('partials/navbar') %>
+  <main class="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+    <!-- Градієнтний хедер -->
+    <div class="w-full h-40 rounded-xl mb-[-72px] bg-gradient-to-r from-purple-50 to-purple-400"></div>
+    <div class="flex flex-col items-center -mt-20 mb-6">
+      <!-- Аватар -->
+      <div
+        class="w-36 h-36 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center text-5xl font-bold text-white shadow-lg overflow-hidden">
+        <% if (user.profile_image_url) { %>
+        <img src="<%= user.profile_image_url %>" alt="<%= user.username %>"
+          class="w-full h-full object-cover rounded-full">
+        <% } else { %>
+        <span><%= user.username[0].toUpperCase() %></span>
+        <% } %>
+      </div>
+      <!-- Ім'я та username -->
+      <h2 class="mt-4 text-2xl font-bold text-gray-900"><%= user.username %></h2>
+      <% if (user.email) { %>
+      <div class="text-gray-500">@<%= user.email.split('@')[0] %></div>
+      <% } %>
+    </div>
 
-    <!-- Welcome Header -->
-    <section class="mb-8">
-      <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-900">
-            👋 Привіт, <%- user.username %>! </h1>
-          <p class="text-gray-600 mt-1">Ось що відбувається з вашими бажаннями</p>
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Інформація про користувача -->
+      <section class="bg-white rounded-2xl border border-gray-100 p-8 w-full md:w-1/3 shadow-sm">
+        <h3 class="font-semibold text-xl mb-6 text-purple-700">Профіль</h3>
+        <div class="space-y-5">
+          <div>
+            <span class="block text-gray-500 text-sm mb-1">Ім'я користувача</span>
+            <span class="font-semibold text-gray-900 text-lg"><%= user.username %></span>
+          </div>
+          <% if (user.email) { %>
+          <div>
+            <span class="block text-gray-500 text-sm mb-1">Email</span>
+            <span class="font-medium text-gray-900"><%= user.email %></span>
+          </div>
+          <% } %>
+          <div>
+            <span class="block text-gray-500 text-sm mb-1">День народження</span>
+            <span class="font-medium text-gray-900">
+              <%= user.birthday ? new Date(user.birthday).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) : 'Не вказано' %>
+            </span>
+          </div>
+          <div>
+            <span class="block text-gray-500 text-sm mb-1">Про себе</span>
+            <span class="font-medium text-gray-900"><%= user.about_me ? user.about_me : 'Не вказано' %></span>
+          </div>
         </div>
-        <div class="mt-4 sm:mt-0">
-          <button onclick="openCreateWishlistModal()"
-            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-            aria-label="Створити вішліст">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Створити вішліст
-          </button>
-        </div>
-      </header>
-    </section>
+      </section>
 
+      <!-- Lists -->
+      <section class="bg-white rounded-2xl border border-gray-100 p-8 flex-1 shadow-sm">
+        <h3 class="font-semibold text-xl mb-6 text-purple-700">Списки бажань (<%= wishlists.length %>)</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <% wishlists.forEach(wishlist => { %>
+          <div
+            class="bg-white border border-purple-100 rounded-xl flex flex-col items-center p-6 hover:shadow-lg transition">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="font-semibold text-gray-900 mb-2 text-center"><%= wishlist.title %></div>
+            <% if (wishlist.description) { %>
+            <div class="text-gray-500 text-sm mb-2 text-center"><%= wishlist.description %></div>
+            <% } %>
+            <a href="/wishlists/<%= wishlist.id %>"
+              class="mt-auto text-purple-600 hover:text-purple-700 hover:underline text-sm font-medium transition">Переглянути</a>
+          </div>
+          <% }) %>
+        </div>
+      </section>
+    </div>
   </main>
 
-  <%- include('./partials/footer') %>
-
-  <script src="/js/modal-handlers.js"></script>
+  <%- include('partials/footer') %>
 </body>
 
 </html>

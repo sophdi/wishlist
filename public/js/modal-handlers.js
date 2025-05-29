@@ -89,18 +89,23 @@ document.addEventListener('DOMContentLoaded', function () {
   ) {
     const editForm = document.getElementById('editWishForm');
     if (editForm) {
-      // Оновлюємо action форми на актуальний id
-      const actionRegex = /\/wishes\/edit\/\d+/;
-      editForm.action = editForm.action.replace(actionRegex, `/wishes/edit/${id}`);
+      const wishlistId = editForm.action.match(/\/wishlists\/(\d+)/)[1];
+      editForm.action = `/wishlists/${wishlistId}/wishes/${id}`;
 
-      // Безпечне заповнення полів
+      // Форматуємо ціну без .00
+      let formattedPrice = '';
+      if (price !== undefined && price !== null && price !== '') {
+        const num = Number(price);
+        formattedPrice = Number.isInteger(num) ? num.toString() : num.toString().replace(/\.00$/, '');
+      }
+
       const setValue = (selector, value) => {
         const el = document.getElementById(selector);
         if (el) el.value = value || '';
       };
       setValue('editWishTitle', title);
       setValue('editWishDescription', description);
-      setValue('editWishPrice', price);
+      setValue('editWishPrice', formattedPrice);
       setValue('editWishCurrency', currency || 'UAH');
       setValue('editWishPriority', priority || 'medium');
       setValue('editWishLink', link);

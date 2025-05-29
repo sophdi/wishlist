@@ -85,6 +85,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         'Accept': 'application/json'
                     }
                 });
+                if (response.status === 401) {
+                    showNotification('error', 'Будь ласка, увійдіть');
+                    return;
+                }
 
                 const result = await response.json();
 
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // --- Відправляємо POST-запит на сервер ---
                 const response = await fetch(this.action, {
-                    method: 'POST',
+                    method: 'PUT',
                     body: formData,
                     headers: {
                         'Accept': 'application/json'
@@ -203,11 +207,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Відображає сповіщення у верхньому правому куті сторінки
 function showNotification(type, message) {
-    // Створюємо елемент сповіщення
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-        }`;
-    notification.innerHTML = `
+  const notification = document.createElement('div');
+  notification.className = `fixed top-16 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+  notification.innerHTML = `
     <div class="flex items-center">
       <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
         ${type === 'success'
