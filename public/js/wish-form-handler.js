@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const editWishForm = document.getElementById('editWishForm');
     if (editWishForm) {
         editWishForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+            e.preventDefault(); // Відміняє стандартну відправку форми
 
             // --- Клієнтська валідація назви бажання ---
             const title = document.getElementById('editWishTitle').value.trim();

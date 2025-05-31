@@ -144,7 +144,8 @@ const registerUser = async (req, res) => {
     try {
       await authService.checkEmailAvailability(email);
       const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await User.createUser(username, email, hashedPassword);
+      const userId = await User.createUser(username, email, hashedPassword);
+      const user = await User.findUserById(userId);
       await authService.createUserSession(req, user);
 
       if (req.xhr) {
@@ -183,11 +184,9 @@ const registerUser = async (req, res) => {
 
 // Завершує сесію користувача та перенаправляє на головну сторінку
 const logoutUser = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Logout error:', err);
-    }
-    res.redirect('/');
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/'); // Перенаправлення на головну після виходу
   });
 };
 

@@ -202,6 +202,20 @@ class Wish {
       throw error;
     }
   }
+
+  // Підрахунок кількості бажань для користувача за його id
+  static async countByUserId(userId) {
+    try {
+      const [rows] = await pool.execute(
+        'SELECT COUNT(*) as total FROM wishes WHERE wishlist_id IN (SELECT id FROM wishlists WHERE user_id = ?)',
+        [userId]
+      );
+      return rows[0]?.total || 0;
+    } catch (error) {
+      console.error('Error counting wishes:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = Wish;

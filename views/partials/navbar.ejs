@@ -22,7 +22,7 @@
           </span>
         </a>
         <% } %>
-        <!-- Search Bar -->
+        <!-- Десктопний пошук -->
         <div class="flex-1 max-w-lg mx-8 hidden md:block">
           <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -37,17 +37,8 @@
         </div>
         <!-- User Section -->
         <div class="flex items-center gap-4">
-          <!-- Mobile Search Button -->
-          <button
-            class="md:hidden p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>
-
           <% if (user) { %>
-          <div class="relative">
+          <div class="relative hidden md:block">
             <button id="user-menu-button" aria-expanded="false"
               class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors focus:outline-none">
               <img src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>"
@@ -66,6 +57,9 @@
                 <p class="text-sm text-gray-500">Мрійник</p>
               </div>
               <div class="py-1">
+                <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                  Профіль
+                </a>
                 <a href="/wishlists" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                   Мої вішлісти
                 </a>
@@ -102,7 +96,12 @@
     <div class="flex flex-col h-full">
       <!-- Mobile Header -->
       <div class="flex justify-between items-center p-6 border-b border-gray-100">
-        <span class="text-xl font-semibold text-gray-900">mriia</span>
+        <span class="text-xl font-semibold text-purple-600 flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-600 shadow-sm">
+            <i class="fa-solid fa-gift text-white text-lg"></i>
+          </span>
+          mriia
+        </span>
         <button id="mobile-menu-close"
           class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
           aria-label="Закрити мобільне меню">
@@ -112,8 +111,20 @@
         </button>
       </div>
 
-      <!-- Mobile Search -->
-      <div class="p-6 border-b border-gray-100">
+      <!-- User Profile in Mobile -->
+      <% if (user) { %>
+      <div class="flex flex-col items-center gap-2 p-6 bg-gray-50 border-b border-gray-100">
+        <img src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>"
+          alt="<%= user.username %>" class="w-16 h-16 rounded-full object-cover border-2 border-purple-200" />
+        <div class="text-center">
+          <p class="font-semibold text-gray-900 text-lg"><%= user.username %></p>
+          <p class="text-sm text-gray-600">Мрійник</p>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Мобільний пошук -->
+      <div class="p-4 border-b border-gray-100 bg-white">
         <div class="relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,45 +133,40 @@
             </svg>
           </div>
           <input type="text" placeholder="Пошук вішлістів..."
-            class="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-gray-50 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all">
+            class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white transition-all">
         </div>
       </div>
-
-      <!-- User Profile in Mobile -->
-      <% if (user) { %>
-      <div class="p-6 bg-gray-50">
-        <div class="flex items-center gap-3">
-          <img src="<%= user.profile_image_url ? user.profile_image_url : '/images/default-avatar.png' %>"
-            alt="<%= user.username %>" class="w-12 h-12 rounded-full object-cover" />
-          <div>
-            <p class="font-semibold text-gray-900"><%= user.username %></p>
-            <p class="text-sm text-gray-600">Мрійник</p>
-          </div>
-        </div>
-      </div>
-      <% } %>
 
       <!-- Mobile Navigation -->
-      <div class="flex-1 px-6 py-6">
-        <div class="space-y-2">
-          <a href="/dashboard" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
-            Дашборд
+      <div class="flex-1 overflow-y-auto">
+        <nav class="py-2 px-2 space-y-1">
+          <a href="/dashboard"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-purple-50 hover:text-purple-700 transition-colors">
+            <i class="fa-solid fa-user text-purple-400"></i>
+            Профіль
           </a>
-          <a href="/wishlists" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
+          <a href="/wishlists"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-purple-50 hover:text-purple-700 transition-colors">
+            <i class="fa-solid fa-list-ul text-purple-400"></i>
             Мої вішлісти
           </a>
-          <a href="/profile" class="block py-3 text-gray-900 font-medium hover:text-purple-600 transition-colors">
+          <a href="/profile"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-900 font-medium hover:bg-purple-50 hover:text-purple-700 transition-colors">
+            <i class="fa-solid fa-gear text-purple-400"></i>
             Налаштування
           </a>
-        </div>
+        </nav>
       </div>
 
-      <!-- Mobile Logout -->
-      <div class="p-6 border-t border-gray-100">
-        <button onclick="event.preventDefault(); openLogoutConfirmModal()"
-          class="block w-full text-left py-3 text-red-600 font-medium hover:text-red-700 transition-colors">
-          Вийти
-        </button>
+      <div class="p-4 border-t border-gray-100 bg-white">
+        <!-- Для мобільного меню: вихід без підтвердження -->
+        <form action="/logout" method="POST" class="w-full">
+          <button type="submit"
+            class="flex items-center gap-3 w-full justify-center py-3 rounded-lg text-red-600 font-semibold hover:bg-red-50 hover:text-red-700 transition-colors">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Вийти
+          </button>
+        </form>
       </div>
     </div>
   </nav>

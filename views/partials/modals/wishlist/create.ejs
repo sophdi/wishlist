@@ -1,30 +1,37 @@
-<!-- views/partials/modals/wishlist/create.ejs -->
-<!-- Модальне вікно створення вішліста -->
+<!-- Модальне вікно створення вішліста (уніфіковано з редагуванням) -->
 <div id="createModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4">
-  <div class="absolute inset-0" style="background-color: rgba(0,0,0,0.4);"></div>
-  <div class="bg-white rounded-2xl w-full max-w-md relative z-10">
-    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+  <div class="absolute inset-0 bg-black opacity-40"></div>
+  <div class="bg-white rounded-xl md:rounded-2xl w-full max-w-md relative z-10 shadow-xl transition-all duration-300">
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
       <h2 class="text-2xl font-bold text-gray-900">Створити вішліст</h2>
-      <button onclick="closeCreateModal()" class="text-gray-500 hover:text-gray-900">
-        <i class="fas fa-times text-xl"></i>
+      <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-900 transition-colors p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
       </button>
     </div>
     <form action="/wishlists/create" method="POST" class="p-6 space-y-6">
       <div>
-        <label for="createTitle" class="block text-gray-700 font-medium mb-2">Назва</label>
-        <input type="text" id="createTitle" name="title" class="w-full border border-gray-300 rounded-lg py-3 px-4"
+        <label for="createTitle" class="block text-gray-800 font-medium mb-2">Назва</label>
+        <input type="text" id="createTitle" name="title"
+          class="w-full border border-gray-200 rounded-lg py-3 px-4 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-shadow duration-200 shadow-sm focus:shadow-md"
           placeholder="Назва вішліста" required />
       </div>
       <div>
-        <label for="createDescription" class="block text-gray-700 font-medium mb-2">Опис (необов'язково)</label>
+        <label for="createDescription" class="block text-gray-800 font-medium mb-2">Опис (необов'язково)</label>
         <textarea id="createDescription" name="description"
-          class="w-full border border-gray-300 rounded-lg py-3 px-4 resize-none" placeholder="Додай короткий опис..."
-          rows="3"></textarea>
+          class="w-full border border-gray-200 rounded-lg py-3 px-4 resize-none placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-shadow duration-200 shadow-sm focus:shadow-md"
+          placeholder="Додай короткий опис..." rows="3"></textarea>
       </div>
-      <div class="flex gap-4">
+      <div class="flex gap-4 pt-2">
         <button type="button" onclick="closeCreateModal()"
-          class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg">Скасувати</button>
-        <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-lg">Створити</button>
+          class="flex-1 border border-gray-200 bg-white text-gray-600 py-3 rounded-lg shadow-sm hover:bg-gray-50 transition-all duration-200">
+          Скасувати
+        </button>
+        <button type="submit"
+          class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg shadow-md transition-all duration-200 font-semibold">
+          Створити
+        </button>
       </div>
     </form>
   </div>

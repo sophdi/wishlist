@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-//app.js
+//app.js - головний файл застосунку 
 require('dotenv').config();
 
 const express = require('express');
@@ -44,6 +44,8 @@ app.get('/', (req, res) => res.render('index')); // Головна сторін�
 
 app.use('/auth', authRoutes); // Автентифікація
 
+
+
 // Захищені маршрути
 app.use('/wishlists', requireAuth, wishlistRoutes);
 app.use('/wishlists', requireAuth, wishRoutes);
@@ -69,3 +71,4 @@ app.use((req, res) => {
 
 // Глобальний обробник помилок
 app.use(errorHandler);
+

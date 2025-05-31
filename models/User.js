@@ -53,12 +53,7 @@ class User {
   }
 
   static async findUserById(id) {
-    const sql = `
-      SELECT id, username, email, profile_image_url, 
-             about_me, birthday, created_at 
-      FROM users 
-      WHERE id = ?
-    `;
+    const sql = 'SELECT id, username, email, birthday, about_me, profile_image_url FROM users WHERE id = ?';
     const rows = await this.executeQuery(sql, [id]);
     return rows[0] || null;
   }

@@ -1,35 +1,189 @@
+<!-- views/index.ejs - головна сторінка для гостей -->
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
   <%- include('partials/head') %>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
-
 <body class="bg-white min-h-screen flex flex-col">
   <%- include('partials/navbar-guest') %>
-  <main class="container mx-auto px-4 flex-grow pt-24">
+  <main class="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
     <!-- Hero Section - Full Screen -->
-    <section class="min-h-screen flex items-center mb-24">
+    <section data-aos="zoom-in-up" data-aos-duration="800" class="min-h-screen flex items-center mb-24">
       <div class="text-center w-full">
-        <h1 class="text-6xl font-bold text-gray-900 mb-6 leading-tight max-w-4xl mx-auto">
-          Твої бажання. Твій план. Твоя реальність.
+        <h1
+          class="text-6xl font-bold text-gray-900 mb-6 leading-tight max-w-4xl mx-auto">
+          Кожен великий план розпочинається з малого бажання
         </h1>
-        <p class="text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
-          Простий інструмент для створення, організації та втілення
-          найзаповітніших мрій
+        <p
+          class="text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
+          mriia — твій навігатор від мрії до реальності
         </p>
-        <div class="flex justify-center gap-4 flex-col sm:flex-row">
-          <a href="/auth/register" class="bg-gray-900 text-white px-8 py-4 rounded-lg text-lg">
+        <div class="flex justify-center gap-4 flex-col sm:flex-row mt-8">
+          <a href="/auth/register"
+            class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow">
             Почати безкоштовно
           </a>
-          <a href="/auth/login" class="bg-white text-gray-900 px-8 py-4 rounded-lg border border-gray-300 text-lg">
+          <a href="/auth/login"
+            class="bg-white text-purple-700 border border-purple-300 hover:bg-purple-50 px-8 py-4 rounded-lg text-lg font-semibold">
             Увійти
           </a>
         </div>
       </div>
     </section>
+
+    <!-- Features Section -->
+    <section data-aos="fade-up" data-aos-duration="800" class="py-16">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-gray-900 mb-4">
+          Як ми допомагаємо перетворювати бажання на плани
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Простий шлях від мрії до її втілення
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
+        <div data-aos="zoom-in-up" data-aos-delay="100"
+          class="flex flex-col items-center text-center bg-white rounded-2xl border border-purple-100 shadow-md p-8">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-gift text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Створюй унікальні колекції</h4>
+          <p class="text-gray-500">Перетворюй абстрактні мрії на
+            конкретні списки бажань</p>
+        </div>
+        <div data-aos="zoom-in-up" data-aos-delay="200"
+          class="flex flex-col items-center text-center bg-white rounded-2xl border border-purple-100 shadow-md p-8">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-layer-group text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Структуруй амбіції</h4>
+          <p class="text-gray-500">Групуй бажання, надаючи їм
+            логіку та послідовність</p>
+        </div>
+        <div data-aos="zoom-in-up" data-aos-delay="300"
+          class="flex flex-col items-center text-center bg-white rounded-2xl border border-purple-100 shadow-md p-8">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-share-nodes text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Надихай оточення</h4>
+          <p class="text-gray-500">Діліться планами, отримуйте
+            підтримку та motivation</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section data-aos="fade-up" data-aos-duration="800" class="py-20 bg-purple-50/40">
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          Три кроки до здійснення твоїх мрій</h2>
+        <p class="text-lg text-gray-600">Простий алгоритм
+          перетворення бажань на реальність</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div data-aos="zoom-in-up" data-aos-delay="100" class="flex flex-col items-center">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-pen-to-square text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Реєстрація</h4>
+          <p class="text-gray-500 text-center">Створи простір для
+            своїх найсміливіших ідей за хвилину</p>
+        </div>
+        <div data-aos="zoom-in-up" data-aos-delay="200" class="flex flex-col items-center">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-list-check text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Створення</h4>
+          <p class="text-gray-500 text-center">Формуй списки
+            бажань — від дрібниць до глобальних цілей</p>
+        </div>
+        <div data-aos="zoom-in-up" data-aos-delay="300" class="flex flex-col items-center">
+          <div
+            class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+            <i class="fa-solid fa-share-from-square text-purple-600 text-2xl"></i>
+          </div>
+          <h4
+            class="font-semibold text-lg mb-2 text-purple-700">
+            Реалізація</h4>
+          <p class="text-gray-500 text-center">Слідкуй за
+            прогресом, ділись і надихайся</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section data-aos="fade-up" data-aos-duration="800" class="py-16">
+      <div class="max-w-3xl mx-auto text-center mb-10">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+          Відповіді на важливі питання</h2>
+        <p class="text-lg text-gray-600">Розкриваємо деталі
+          нашого сервісу</p>
+      </div>
+      <div class="max-w-2xl mx-auto space-y-4">
+        <details data-aos="zoom-in-up" data-aos-delay="100"
+          class="bg-white rounded-lg border border-purple-100 p-4">
+          <summary class="font-semibold text-purple-700 cursor-pointer">Чи є обмеження у
+            кількості бажань?</summary>
+          <p class="text-gray-600 mt-2">Жодних обмежень. Створюйте стільки списків і бажань, скільки потрібно для
+            втілення ваших мрій.</p>
+        </details>
+        <details data-aos="zoom-in-up" data-aos-delay="200"
+          class="bg-white rounded-lg border border-purple-100 p-4">
+          <summary class="font-semibold text-purple-700 cursor-pointer">Як безпечно ділитися
+            списками?</summary>
+          <p class="text-gray-600 mt-2">Повний контроль над приватністю. Ви самі вирішуєте, хто може бачити ваші
+            бажання.</p>
+        </details>
+        <details data-aos="zoom-in-up" data-aos-delay="300"
+          class="bg-white rounded-lg border border-purple-100 p-4">
+          <summary class="font-semibold text-purple-700 cursor-pointer">Чи можна редагувати
+            бажання?</summary>
+          <p class="text-gray-600 mt-2">Звісно! Ваші списки — це живий простір, який постійно оновлюється разом з вашими
+            мріями.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section data-aos="fade-up" data-aos-duration="800" class="py-16">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">Твої
+          мрії чекають на план</h2>
+        <a href="/auth/register"
+          class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-10 py-4 rounded-lg text-xl font-semibold shadow">
+          Розпочати зараз
+        </a>
+        <p class="text-gray-500 mt-4">Або <a href="/auth/login"
+            class="text-purple-700 underline hover:text-purple-900">увійти</a>, якщо вже маєш акаунт</p>
+      </div>
+    </section>
   </main>
   <%- include('partials/footer') %>
-</body>
 
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://app.embed.im/sparkles.js" defer></script>
+  <script>
+    AOS.init({
+      duration: 800,
+      once: false,
+      offset: 100
+    });
+  </script>
+</body>
 </html>

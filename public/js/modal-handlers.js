@@ -78,18 +78,20 @@ document.addEventListener('DOMContentLoaded', function () {
     closeModal('deleteWishModal');
   };
 
-  window.openEditWishModal = function(
+  window.openEditWishModal = function (
     id,
     title,
     description,
     price,
     currency,
     priority,
-    link
+    link,
+    image // <-- новий параметр
   ) {
     const editForm = document.getElementById('editWishForm');
     if (editForm) {
-      const wishlistId = editForm.action.match(/\/wishlists\/(\d+)/)[1];
+      // Отримуємо wishlistId з data-атрибута
+      const wishlistId = editForm.dataset.wishlistId;
       editForm.action = `/wishlists/${wishlistId}/wishes/${id}`;
 
       // Форматуємо ціну без .00
@@ -109,8 +111,24 @@ document.addEventListener('DOMContentLoaded', function () {
       setValue('editWishCurrency', currency || 'UAH');
       setValue('editWishPriority', priority || 'medium');
       setValue('editWishLink', link);
-    }
 
+      // Оновлення зображення
+      const editImagePreview = document.getElementById('editImagePreview');
+      const editImagePreviewContainer = document.getElementById('editImagePreviewContainer');
+      const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+      if (image) {
+        editImagePreview.src = image;
+        editImagePreview.classList.remove('hidden');
+        editImagePreviewContainer.classList.remove('hidden');
+        uploadPlaceholder.classList.add('hidden');
+      } else {
+        editImagePreview.src = '';
+        editImagePreview.classList.add('hidden');
+        editImagePreviewContainer.classList.add('hidden');
+        uploadPlaceholder.classList.remove('hidden');
+      }
+    }
     openModal('editWishModal');
   };
 
@@ -187,6 +205,22 @@ document.addEventListener('DOMContentLoaded', function () {
     link.addEventListener('click', function(e) {
       e.preventDefault();
       window.openConfirmDeleteWishModal(this.href);
+    });
+  });
+
+  // Обробник для кнопки "Редагувати" бажання
+  document.querySelectorAll('button[data-action="edit-wish"]').forEach(btn => {
+    btn.addEventListener('click', function () {
+      openEditWishModal(
+        btn.dataset.id,
+        btn.dataset.title,
+        btn.dataset.description,
+        btn.dataset.price,
+        btn.dataset.currency,
+        btn.dataset.priority,
+        btn.dataset.link,
+        btn.dataset.image // <-- додано
+      );
     });
   });
 });

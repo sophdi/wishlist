@@ -13,17 +13,35 @@
 
     <!-- Header Section -->
     <div class="mb-8">
-      <!-- Title with Edit Button -->
+      <!-- Back Button + Title with Edit Button -->
       <div class="flex items-start justify-between mb-4">
-        <h1 class="text-2xl font-semibold text-gray-900"><%= wishlist.title %></h1>
-
-        <!-- Edit Button (замінено меню на кнопку "Редагувати" з іконкою) -->
-        <button onclick="openEditWishlistModal()" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors font-medium text-gray-700">
-          <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="flex items-center gap-3">
+          <button
+            onclick="window.location.href='/wishlists'"
+            type="button"
+            class="flex items-center px-2 py-2 rounded-lg bg-white/80 text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors duration-150 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-100 group"
+            title="Назад до списку"
+            aria-label="Назад до списку"
+          >
+            <svg class="w-6 h-6 group-hover:text-purple-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1 class="text-2xl font-semibold text-gray-900 ml-2"><%= wishlist.title %></h1>
+        </div>
+        <!-- Edit Button -->
+        <button
+          onclick="openEditWishlistModal()"
+          type="button"
+          class="flex items-center gap-2 px-4 py-2 text-gray-700 font-medium transition hover:text-purple-600"
+          title="Редагувати вішлист"
+          aria-label="Редагувати вішлист"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
-          Редагувати
+          <span class="hidden sm:inline">Редагувати</span>
         </button>
       </div>
 
@@ -44,53 +62,95 @@
       <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
         <!-- Search -->
         <div class="relative flex-1 max-w-md">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <input type="text" data-search="wishes" data-target="#wishesContainer" placeholder="Пошук бажань..."
-            class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          <input
+            id="searchWishesInput"
+            type="text"
+            data-search="wishes"
+            data-target="#wishesContainer"
+            placeholder="Пошук бажань…"
+            class="block w-full pl-12 pr-10 py-3 rounded-xl border border-purple-200 bg-white text-base placeholder-gray-400 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-200 shadow-sm focus:shadow-md font-sans"
+            style="box-shadow: 0 1px 4px 0 rgba(160, 120, 255, 0.04);"
+            autocomplete="off"
+          >
+          <!-- Clear button -->
+          <button
+            type="button"
+            id="clearSearchWishes"
+            class="absolute inset-y-0 right-2 flex items-center justify-center text-purple-300 hover:text-purple-500 transition-colors duration-150 focus:outline-none"
+            style="display:none;"
+            tabindex="-1"
+            aria-label="Очистити пошук"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
         </div>
 
         <!-- Sort -->
         <div class="flex gap-3">
           <!-- Sort -->
           <form id="sortForm" method="get">
-            <select name="sort" id="sortSelect">
-              <option value="created_desc" <%= sort === 'created_desc' ? 'selected' : '' %>>Останні</option>
-              <option value="title_asc" <%= sort === 'title_asc' ? 'selected' : '' %>>За назвою</option>
-              <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>За ціною ↑</option>
-              <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>За ціною ↓</option>
-            </select>
+            <div class="relative">
+              <select
+                name="sort"
+                id="sortSelect"
+                class="appearance-none block w-full px-4 py-2 pr-10 rounded-xl bg-white/70 border border-purple-100 text-gray-800 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-300 transition-all duration-200 cursor-pointer font-sans"
+                title="Сортувати бажання"
+                aria-label="Сортувати бажання"
+              >
+                <option value="created_desc" <%= sort === 'created_desc' ? 'selected' : '' %>>
+                  Останні
+                </option>
+                <option value="title_asc" <%= sort === 'title_asc' ? 'selected' : '' %>>
+                  За назвою
+                </option>
+                <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>
+                  Від дешевих
+                </option>
+                <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>
+                  Від дорогих
+                </option>
+              </select>
+              <!-- Іконка стрілки для кастомного select -->
+              <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                <svg class="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </form>
         </div>
       </div>
     </div>
 
     <!-- Content Area - Grid of Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
       <!-- Картка додавання бажання -->
       <div>
         <button onclick="openCreateWishModal()"
-          class="w-full h-80 bg-white border-2 border-dashed border-gray-200 rounded-xl hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 flex flex-col items-center justify-center text-gray-500 hover:text-purple-600 group">
-          <div
-            class="w-16 h-16 bg-gray-100 group-hover:bg-purple-100 rounded-full flex items-center justify-center mb-4 transition-colors">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          class="w-full h-80 bg-white border-2 border-dashed border-purple-300 rounded-xl flex flex-col items-center justify-center text-purple-500 hover:text-purple-600 hover:bg-purple-50 hover:border-purple-400 transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-purple-100"
+          style="transition-property: box-shadow, transform, opacity;">
+          <div class="w-14 h-14 bg-purple-200 rounded-full flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform duration-200">
+            <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
           <div class="text-center">
-            <div class="font-semibold text-lg mb-1">Додати нове бажання</div>
-            <div class="text-sm text-gray-400">Створіть своє наступне бажання</div>
+            <div class="font-medium text-base text-purple-500">Додати бажання</div>
           </div>
         </button>
       </div>
-      <!-- Всі бажання одним циклом -->
+      <!-- Всі бажання -->
       <div id="wishesContainer" class="contents">
         <% wishes.forEach(wish => { %>
-        <div class="relative group">
+        <div class="relative group hover:shadow-md hover:border-purple-300 transition-colors duration-200">
           <div class="absolute top-4 right-4 z-10">
             <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishMenu('<%= wish.id %>')"
               class="p-2 text-gray-400 hover:text-purple-600 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
@@ -112,59 +172,54 @@
                   '<%= wish.link || '' %>'
                 ); toggleWishMenu('<%= wish.id %>');"
                   class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 flex items-center gap-3">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                  <i class="fa-regular fa-pen-to-square text-purple-400"></i>
                   Редагувати
                 </button>
                 <!-- Додаємо кнопку "Виконати бажання" -->
                 <button
                   onclick="openCompleteWishModal('<%= wish.id %>', '<%- wish.title.replace(/'/g, '&#39;') %>'); toggleWishMenu('<%= wish.id %>');"
-                  class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 flex items-center gap-3">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
+                  class="w-full text-left px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-3">
+                  <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
                   Виконати бажання
                 </button>
                 <button
                   onclick="openDeleteWishModal('/wishlists/<%= wishlist.id %>/wishes/<%= wish.id %>/delete'); toggleWishMenu('<%= wish.id %>');"
                   class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
+                  <i class="fa-regular fa-trash-can text-red-500"></i>
                   Видалити
                 </button>
               </div>
             </div>
           </div>
           <a href="/wishlists/<%= wishlist.id %>/wishes/<%= wish.id %>" class="block">
-            <div class="bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-purple-300 transition-all duration-200 h-80 flex flex-col justify-between relative overflow-hidden">
-              <!-- Верхня частина: зображення, меню -->
-              <div>
-                <div class="w-full h-44 bg-gray-100 rounded-t-xl flex items-center justify-center overflow-hidden">
-                  <% if (wish.image_url) { %>
-                    <img src="<%= wish.image_url %>" alt="<%= wish.title %>"
-                      class="w-full h-full object-cover rounded-t-xl"
-                      loading="lazy">
-                  <% } else { %>
-                  <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white rounded-xl border border-gray-100 hover:border-purple-300 transition-colors duration-200 h-80 flex flex-col justify-between relative overflow-hidden group">
+              <!-- Верхня частина: зображення -->
+              <div class="w-full h-44 bg-gray-100 flex items-center justify-center overflow-hidden">
+                <% if (wish.image_url) { %>
+                  <img src="<%= wish.image_url %>" alt="<%= wish.title %>"
+                    class="w-full h-full object-cover"
+                    loading="lazy">
+                <% } else { %>
+                  <svg class="w-12 h-12 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <% } %>
-                </div>
+                <% } %>
               </div>
               <!-- Нижня частина: назва, ціна, дата -->
-              <div class="flex flex-col justify-end flex-grow p-4">
-                <h3 class="text-base font-semibold text-gray-900 mb-0 line-clamp-2 mt-2"><%= wish.title %></h3>
-                <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                  <% if (wish.price) { %>
-                  <div class="font-semibold text-purple-600">
+              <div class="flex flex-col justify-end flex-grow p-5">
+                <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2 mt-2 flex items-center gap-2">
+                  <%= wish.title %>
+                </h3>
+                <div class="flex items-center justify-between mt-auto pt-2">
+                  <% if (wish.price && wish.price !== 0 && wish.price !== '') { %>
+                  <div class="text-sm text-gray-400 font-normal">
                     <%= Math.round(wish.price) %> <span class="text-xs"><%= wish.currency || 'UAH' %></span>
                   </div>
                   <% } %>
+                  <span class="text-xs text-gray-400">
+                    <%= wish.created_at ? new Date(wish.created_at).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) : '' %>
+                  </span>
                 </div>
               </div>
             </div>
@@ -238,35 +293,102 @@
           wishesContainer.innerHTML = data.wishes
             .filter(w => w.status !== 'completed')
             .map(wish => `
-          <div class="relative group">
-            <a href="/wishlists/${wishlistId}/wishes/${wish.id}" class="block">
-              <div class="bg-white rounded-xl border border-gray-100 hover:shadow-md transition-all duration-200 h-80 flex flex-col justify-between relative overflow-hidden">
-                <div>
-                  <div class="w-full h-44 bg-gray-100 rounded-t-xl flex items-center justify-center overflow-hidden">
-                    ${wish.image_url ? `<img src="${wish.image_url}" alt="${wish.title}" class="w-full h-full object-cover rounded-t-xl">` : `
-                      <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    `}
-                  </div>
-                </div>
-                <div class="flex flex-col justify-end flex-grow p-4">
-                  <h3 class="text-base font-semibold text-gray-900 mb-0 line-clamp-2 mt-2">${wish.title}</h3>
-                  <div class="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
-                    ${wish.price ? `<div class="font-semibold text-purple-600">${Math.round(wish.price)} <span class="text-xs">${wish.currency || 'UAH'}</span></div>` : ''}
-                  </div>
-                </div>
-              </div>
-            </a>
+      <div class="relative group hover:shadow-md hover:border-purple-300 transition-colors duration-200">
+        <div class="absolute top-4 right-4 z-10">
+          <button onclick="event.preventDefault(); event.stopPropagation(); toggleWishMenu('${wish.id}')"
+            class="p-2 text-gray-400 hover:text-purple-600 hover:bg-gray-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+            </svg>
+          </button>
+          <div id="wishMenu${wish.id}"
+            class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100">
+            <div class="py-1">
+              <button onclick="openEditWishModal(
+                '${wish.id}',
+                '${wish.title.replace(/'/g, '&#39;')}',
+                '${(wish.description || '').replace(/'/g, '&#39;')}',
+                '${wish.price || ''}',
+                '${wish.currency || ''}',
+                '${wish.priority || ''}',
+                '${wish.link || ''}'
+              ); toggleWishMenu('${wish.id}');"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 flex items-center gap-3">
+                <i class="fa-regular fa-pen-to-square text-purple-400"></i>
+                Редагувати
+              </button>
+              <button
+                onclick="openCompleteWishModal('${wish.id}', '${wish.title.replace(/'/g, '&#39;')}'); toggleWishMenu('${wish.id}');"
+                class="w-full text-left px-4 py-2 text-sm text-purple-600 hover:bg-purple-50 flex items-center gap-3">
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-500"></i>
+                Виконати бажання
+              </button>
+              <button
+                onclick="openDeleteWishModal('/wishlists/${wishlistId}/wishes/${wish.id}/delete'); toggleWishMenu('${wish.id}');"
+                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3">
+                <i class="fa-regular fa-trash-can text-red-500"></i>
+                Видалити
+              </button>
+            </div>
           </div>
-        `).join('');
+        </div>
+        <a href="/wishlists/${wishlistId}/wishes/${wish.id}" class="block">
+          <div class="bg-white rounded-xl border border-gray-100 hover:border-purple-300 transition-colors duration-200 h-80 flex flex-col justify-between relative overflow-hidden group">
+            <div class="w-full h-44 bg-gray-100 flex items-center justify-center overflow-hidden">
+              ${wish.image_url
+                ? `<img src="${wish.image_url}" alt="${wish.title}" class="w-full h-full object-cover" loading="lazy">`
+                : `<svg class="w-12 h-12 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>`}
+            </div>
+            <div class="flex flex-col justify-end flex-grow p-5">
+              <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2 mt-2 flex items-center gap-2">
+                ${wish.title}
+              </h3>
+              <div class="flex items-center justify-between mt-auto pt-2">
+                ${wish.price && wish.price !== 0 && wish.price !== ''
+                  ? `<div class="text-sm text-gray-400 font-normal">
+                      ${Math.round(wish.price)} <span class="text-xs">${wish.currency || 'UAH'}</span>
+                    </div>`
+                  : ''}
+                <span class="text-xs text-gray-400">
+                  ${wish.created_at ? new Date(wish.created_at).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' }) : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </div>
+    `).join('');
         } else {
           wishesContainer.innerHTML = '<div class="col-span-full text-center py-10 text-red-400">Помилка завантаження</div>';
         }
       } catch (e) {
         wishesContainer.innerHTML = '<div class="col-span-full text-center py-10 text-red-400">Помилка зʼєднання</div>';
       }
+    });
+
+    // Мікро-анімація появи курсору (затримка для плавності)
+    document.getElementById('searchWishesInput').addEventListener('focus', function () {
+      this.classList.add('ring-2', 'ring-purple-400', 'shadow-md');
+    });
+    document.getElementById('searchWishesInput').addEventListener('blur', function () {
+      this.classList.remove('ring-2', 'ring-purple-400', 'shadow-md');
+    });
+
+    // Кнопка очищення поля
+    const searchInput = document.getElementById('searchWishesInput');
+    const clearBtn = document.getElementById('clearSearchWishes');
+    searchInput.addEventListener('input', function () {
+      clearBtn.style.display = this.value ? 'flex' : 'none';
+    });
+    clearBtn.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
     });
   </script>
 
@@ -276,6 +398,23 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
+    }
+    /* Анімація розкриття для select (тільки для кастомних рішень, тут плавний фокус) */
+    #sortSelect:focus {
+      box-shadow: 0 2px 8px 0 rgba(160, 120, 255, 0.08);
+      background: rgba(243, 232, 255, 0.8);
+    }
+    #sortSelect option {
+      background: #fff;
+      color: #333;
+    }
+    #sortSelect option:checked,
+    #sortSelect option[selected] {
+      background: #ede9fe;
+      color: #7c3aed;
+      font-weight: 600;
     }
   </style>
 </body>
