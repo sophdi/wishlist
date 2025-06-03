@@ -23,30 +23,20 @@
       <!-- Зображення -->
       <div>
         <label class="block text-sm text-gray-700 mb-2">Зображення</label>
-        <div class="relative h-[140px]">
+        <label for="editWishImage" class="block w-full h-44 bg-white rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all">
           <input type="file" name="image" id="editWishImage" accept="image/*" class="hidden">
-          <label for="editWishImage" class="block h-full cursor-pointer">
-            <div
-              class="bg-white rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center h-full hover:border-primary-500 hover:bg-primary-50 transition-all">
-              <div id="editImagePreviewContainer"
-                class="<%= wish && wish.image ? '' : 'hidden' %> w-full h-full rounded-lg overflow-hidden">
-                <% if (wish && wish.image) { %>
-                <img id="editImagePreview" src="<%= wish.image %>" class="w-full h-full object-cover">
-                <% } else { %>
-                <img id="editImagePreview" class="w-full h-full object-cover hidden">
-                <% } %>
-              </div>
-              <div id="uploadPlaceholder"
-                class="flex flex-col items-center justify-center <%= wish && wish.image ? 'hidden' : '' %>">
-                <div class="flex items-center gap-2 text-gray-400 mb-2">
-                  <i class="fas fa-image text-3xl"></i>
-                </div>
-                <p class="text-sm font-medium text-gray-500 mb-2">Завантажте зображення</p>
-                <p class="text-xs font-normal text-gray-500 mb-2">PNG, JPG, GIF до 5MB</p>
-              </div>
+          <div id="editImagePreviewContainer" class="<%= wish && wish.image ? '' : 'hidden' %> w-full h-full rounded-lg overflow-hidden">
+            <img id="editImagePreview" class="w-full h-full object-cover" src="<%= wish && wish.image ? wish.image : '' %>">
+          </div>
+          <div id="uploadPlaceholder"
+            class="flex flex-col items-center justify-center <%= wish && wish.image ? 'hidden' : '' %> w-full h-full">
+            <div class="flex items-center gap-2 text-gray-400 mb-2">
+              <i class="fas fa-image text-3xl"></i>
             </div>
-          </label>
-        </div>
+            <p class="text-sm font-medium text-gray-500 mb-2">Завантажте зображення</p>
+            <p class="text-xs font-normal text-gray-500 mb-2">PNG, JPG, GIF до 5MB</p>
+          </div>
+        </label>
       </div>
 
       <!-- Назва -->
@@ -109,7 +99,7 @@
 
       <!-- Кнопки -->
       <div class="flex gap-3 pt-2">
-        <button type="button" onclick="closeEditWishModal()"
+        <button type="button" onclick="window.closeEditWishModal()"
           class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm">
           Скасувати
         </button>

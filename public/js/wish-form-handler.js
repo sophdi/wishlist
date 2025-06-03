@@ -65,10 +65,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // --- Показати індикатор завантаження на кнопці ---
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Додавання...';
+            // const submitButton = this.querySelector('button[type="submit"]');
+            // const originalText = submitButton.textContent;
+            // submitButton.disabled = true;
+            // submitButton.textContent = 'Додавання...';
 
             try {
                 // --- Формуємо FormData для відправки файлів та інших даних ---
@@ -121,8 +121,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Помилка при додаванні бажання. Спробуйте ще раз.');
             } finally {
                 // --- Відновлюємо стан кнопки ---
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
+                // submitButton.disabled = false;
+                // submitButton.textContent = originalText;
             }
         });
 
@@ -139,8 +139,50 @@ document.addEventListener('DOMContentLoaded', function () {
     // ===== Обробка форми редагування бажання =====
     const editWishForm = document.getElementById('editWishForm');
     if (editWishForm) {
+        // --- Елементи для попереднього перегляду зображення ---
+        const editWishImage = document.getElementById('editWishImage');
+        const editImagePreviewContainer = document.getElementById('editImagePreviewContainer');
+        const editImagePreview = document.getElementById('editImagePreview');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+        // --- Обробник вибору зображення ---
+        if (editWishImage) {
+            editWishImage.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Розмір файлу не повинен перевищувати 5MB');
+                        editWishImage.value = '';
+                        return;
+                    }
+                    if (!file.type.startsWith('image/')) {
+                        alert('Будь ласка, виберіть зображення');
+                        editWishImage.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        editImagePreview.src = e.target.result;
+                        editImagePreviewContainer.classList.remove('hidden');
+                        uploadPlaceholder.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // --- Лічильник символів для поля опису ---
+        const editDesc = document.getElementById('editWishDescription');
+        const editCharCount = document.getElementById('editCharCount');
+        if (editDesc && editCharCount) {
+            editDesc.addEventListener('input', function () {
+                editCharCount.textContent = editDesc.value.length;
+            });
+        }
+
+        // --- Обробка відправки форми редагування бажання ---
         editWishForm.addEventListener('submit', async function (e) {
-            e.preventDefault(); // Відміняє стандартну відправку форми
+            e.preventDefault();
 
             // --- Клієнтська валідація назви бажання ---
             const title = document.getElementById('editWishTitle').value.trim();
@@ -150,10 +192,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             // --- Показати індикатор завантаження на кнопці ---
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Збереження...';
+            // const submitButton = this.querySelector('button[type="submit"]');
+            // const originalText = submitButton.textContent;
+            // submitButton.disabled = true;
+            // submitButton.textContent = 'Збереження...';
 
             try {
                 // --- Формуємо FormData для відправки файлів та інших даних ---
@@ -196,8 +238,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Помилка при оновленні бажання. Спробуйте ще раз.');
             } finally {
                 // --- Відновлюємо стан кнопки ---
+                // submitButton.disabled = false;
+                // submitButton.textContent = originalText;
+            }
+        });
+
+        // --- Скидання стану кнопки при закритті модалки ---
+        window.addEventListener('closeEditWishModal', function () {
+            const submitButton = editWishForm.querySelector('button[type="submit"]');
+            if (submitButton) {
                 submitButton.disabled = false;
-                submitButton.textContent = originalText;
+                submitButton.textContent = 'Зберегти';
+            }
+            // Можна також очистити форму, якщо потрібно:
+            // editWishForm.reset();
+        });
+
+        // --- Показ поточного зображення при відкритті модалки редагування ---
+        window.addEventListener('openEditWishModal', function (e) {
+            const wish = e.detail; // { image_url: '...' }
+            const editImagePreview = document.getElementById('editImagePreview');
+            const editImagePreviewContainer = document.getElementById('editImagePreviewContainer');
+            const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+
+            if (wish && wish.image_url) {
+                editImagePreview.src = wish.image_url;
+                editImagePreviewContainer.classList.remove('hidden');
+                uploadPlaceholder.classList.add('hidden');
+            } else {
+                editImagePreview.src = '';
+                editImagePreviewContainer.classList.add('hidden');
+                uploadPlaceholder.classList.remove('hidden');
             }
         });
     }

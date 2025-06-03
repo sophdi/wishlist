@@ -167,35 +167,24 @@ class Wish {
   // Пошук по бажаннях з розширеними опціями
   static async search(wishlistId, searchTerm, options = {}) {
     try {
-      let query = `
-        SELECT * FROM wishes 
-        WHERE wishlist_id = ? 
-        AND (
-          LOWER(title) LIKE LOWER(?) 
-          OR LOWER(description) LIKE LOWER(?)
-          ${options.includePriority ? 'OR LOWER(priority) LIKE LOWER(?)' : ''}
-          ${options.includeStatus ? 'OR LOWER(status) LIKE LOWER(?)' : ''}
-          ${options.includePrice ? 'OR price <= ?' : ''}
-        )
-      `;
+      const allowedSortFields = ['created_at', 'price', 'priority', 'title'];
+      const sortField = allowedSortFields.includes(options.sortBy) ? options.sortBy : 'created_at';
+      const sortOrder = options.sortOrder === 'DESC' ? 'DESC' : 'ASC';
 
-      // Додаємо сортування
-      if (options.sortBy) {
-        const sortOrder = options.sortOrder?.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-        query += ` ORDER BY ${options.sortBy} ${sortOrder}`;
-      } else {
-        query += ' ORDER BY created_at DESC';
-      }
+      const sql = `
+        SELECT * FROM wishes
+        WHERE wishlist_id = ?
+          AND (
+            LOWER(title) LIKE LOWER(?)
+            OR LOWER(description) LIKE LOWER(?)
+          )
+        ORDER BY ${sortField} ${sortOrder}
+      `;
 
       const searchPattern = `%${searchTerm}%`;
       const queryParams = [wishlistId, searchPattern, searchPattern];
 
-      // Додаємо додаткові параметри якщо потрібно
-      if (options.includePriority) queryParams.push(searchPattern);
-      if (options.includeStatus) queryParams.push(searchPattern);
-      if (options.includePrice) queryParams.push(parseFloat(searchTerm) || 0);
-
-      const [rows] = await pool.execute(query, queryParams);
+      const [rows] = await pool.execute(sql, queryParams);
       return rows;
     } catch (error) {
       console.error('Error searching wishes:', error);

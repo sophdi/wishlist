@@ -58,11 +58,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Модальні вікна для бажань
   window.openCreateWishModal = function() {
+    // Скидання стану превʼю та плейсхолдера для create
+    const createImagePreview = document.getElementById('createImagePreview');
+    const createImagePreviewContainer = document.getElementById('createImagePreviewContainer');
+    const createUploadPlaceholder = document.getElementById('createUploadPlaceholder');
+    if (createImagePreview) createImagePreview.src = '';
+    if (createImagePreviewContainer) createImagePreviewContainer.classList.add('hidden');
+    if (createUploadPlaceholder) createUploadPlaceholder.classList.remove('hidden');
+
     openModal('createWishModal');
   };
 
   window.closeCreateWishModal = function() {
     closeModal('createWishModal');
+  };
+
+  window.closeEditWishModal = function() {
+    const modal = document.getElementById('editWishModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }
   };
 
   window.openDeleteWishModal = function(deleteUrl) {
@@ -219,8 +235,15 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.dataset.currency,
         btn.dataset.priority,
         btn.dataset.link,
-        btn.dataset.image // <-- додано
+        btn.dataset.image // <-- тут картинка
       );
     });
+  });
+
+  // Додаємо обробник події для відкриття модального вікна редагування бажання
+  window.addEventListener('openEditWishModal', function(event) {
+    const imageUrl = event.detail.image_url;
+    // Тепер ви можете використовувати imageUrl за потреби
+    console.log('URL зображення для редагування бажання:', imageUrl);
   });
 });

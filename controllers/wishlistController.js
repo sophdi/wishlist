@@ -207,7 +207,7 @@ class WishlistController {
         includeStatus: req.query.includeStatus === 'true',
         includePrice: req.query.includePrice === 'true',
         sortBy: req.query.sortBy,
-        sortOrder: req.query.sortOrder
+        sortOrder: req.query.sortOrder === 'desc' ? 'DESC' : 'ASC'
       };
 
       const wishes = await Wish.search(wishlistId, searchTerm, options);
